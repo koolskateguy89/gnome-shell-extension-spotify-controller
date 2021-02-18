@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="org.gnome.shell.extensions.spotify-controller" path="/org/gnome/shell/extensions/spotify-controller/">
+
+    <key name="left-padding" type="i">
+      <default>5</default>
+    </key>
+
+    <key name="right-padding" type="i">
+      <default>5</default>
+    </key>
+
+    <!--
+    <key name="update-time" type="d">
+      <default>0.8</default>
+    </key>
+    -->
+
+    <key name="extension-place" type="s">
+      <default>'middle'</default>
+    </key>
+
+    <key name="extension-index" type="i">
+      <default>0</default>
+    </key>
+
+    <key name="show-inactive" type="b">
+      <default>false</default>
+    </key>
+
+  </schema>
+</schemalist>
