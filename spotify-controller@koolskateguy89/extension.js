@@ -38,8 +38,9 @@ function getStatus() {
 		//Use GLib to send a dbus request with the expectation of receiving an MPRIS v2 response.
 		[res, out, err, exitStatus] = GLib.spawn_command_line_sync(status);
 		try {
-			return ByteArray.toString(out).split("string ")[1].split('"').join("").trim(); // .split.join is replaceAll
+			return out.toString().split("string ")[1].split('"').join("").trim(); // .split.join is replaceAll
 		} catch (err2) {
+			global.log(err2);
 			return undefined;
 		}
 	} catch (err) {
@@ -76,12 +77,6 @@ function isPlaying() {
 	return null;
 }
 
-/*
-function padStr(direction, padding) {
-	return `padding-${direction}: ${padding}px; `
-}*/
-
-
 function padStr(direction) {
 	return `padding-${direction}: ${settings.get_int(direction+"-padding")}px; `;
 }
@@ -92,9 +87,9 @@ const forward = 'media-skip-forward-symbolic';
 const play = 'media-playback-start-symbolic';
 const pause = 'media-playback-pause-symbolic';
 
-// TODO: fix:
-//const red = new Clutter.ColorizeEffect(new Clutter.Color(255,0,0,100));
-//const green = new Clutter.ColorizeEffect(new Clutter.Color(0,255,0,100));
+// TODO: fix & finish:
+//const red = new Clutter.ColorizeEffect(Clutter.Color.get_static(Clutter.StaticColor.RED));
+//const green = new Clutter.ColorizeEffect(Clutter.Color.get_static(Clutter.StaticColor.GREEN));
 
 var Previous = GObject.registerClass(
 class Previous extends St.Icon {
@@ -164,9 +159,16 @@ class Toggle extends St.Icon {
 
 	_pauseIcon() {
 		this.icon_name = pause;
+		//global.log('\nto red')
+		//this.clear_effects();
+		//this.add_effect(red);
 	}
+
 	_playIcon() {
 		this.icon_name = play;
+		//global.log('\nto green')
+		//this.clear_effects();
+		//this.add_effect(green);
 	}
 
 	// for some reason if I try using this.[...], it gives
@@ -270,7 +272,7 @@ class Extension {
 		if (playing != null) {
 			if (hide) {
 				var insertBox = getPanel(lastExtensionPlace);
-				debug(`Index: ${-lastExtensionIndex}`);
+				//debug(`Index: ${-lastExtensionIndex}`);
 				this.controlBar._insertAt(insertBox, lastExtensionIndex);
 				hide = false;
 			}
