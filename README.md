@@ -11,7 +11,7 @@
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-**This extension is a clone of the [Spotify Label Extension](https://github.com/mheine/gnome-shell-spotify-label) that I have adapted quite a bit. Credit to [Marcus Heine @mheine](https://github.com/mheine) for the majority of the code here.**
+**This extension started as a clone of the [Spotify Label Extension](https://github.com/mheine/gnome-shell-spotify-label) that I adapted quite a bit. Credit to [Marcus Heine @mheine](https://github.com/mheine) for the majority of the code here.**
 
 
 Use this GNOME Shell extension to skip, toggle pause/play and restart/backtrack the current song. This works well with [Spotify Label Extension](https://github.com/mheine/gnome-shell-spotify-label), as seen on the left of the example below*
@@ -22,7 +22,7 @@ Use this GNOME Shell extension to skip, toggle pause/play and restart/backtrack 
 
 ## Installation
 
-Hopefully this is going to be on the [GNOME Extension webside](https://extensions.gnome.org/) soon, but here's how to manually install this extension:
+The easiest way to install this is through the [GNOME Extension website](https://extensions.gnome.org/extension/4013/spotify-controller/), but here's how to manually install this extension:
 
 - **Clone the repo**
 
@@ -32,9 +32,13 @@ Hopefully this is going to be on the [GNOME Extension webside](https://extension
 
   `cd gnome-shell-extension-spotify-controller`
 
-- **Copy the extension into your extensions folder**
+- **Copy the extension into your extensions folder (or make a symbolic link if you want)**
 
   `cp -R spotify-controller@koolskateguy89 ~/.local/share/gnome-shell/extensions/`
+
+  OR
+
+  `ln -s "$(pwd)/spotify-controller@koolskateguy89" ~/.local/share/gnome-shell/extensions/`
 
 - **Restart GNOME Shell or logout then log back in**
 
@@ -43,6 +47,8 @@ Hopefully this is going to be on the [GNOME Extension webside](https://extension
 - **Enable the extension**
 
   `gnome-shell-extension-prefs` (deprecated but works for now) then enable 'Spotify Controller'
+
+If you copied the extension, you can delete the repo folder (`cd .. && rm -r gnome-shell-extension-spotify-controller`)
 
 ## Prerequisites
 
