@@ -2,6 +2,9 @@
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
+**This extension started as a clone of the [Spotify Label Extension](https://github.com/mheine/gnome-shell-spotify-label) that I adapted quite a bit. Credit to [Marcus Heine @mheine](https://github.com/mheine) for the majority of the code here.**
+
+## Table of Contents _generated with [DocToc](https://github.com/thlorenz/doctoc)_
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
@@ -10,9 +13,6 @@
 - [License](#license)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
-**This extension started as a clone of the [Spotify Label Extension](https://github.com/mheine/gnome-shell-spotify-label) that I adapted quite a bit. Credit to [Marcus Heine @mheine](https://github.com/mheine) for the majority of the code here.**
-
 
 Use this GNOME Shell extension to skip, toggle pause/play and restart/backtrack the current song. This works well with [Spotify Label Extension](https://github.com/mheine/gnome-shell-spotify-label), as seen on the left of the example below*
 
