@@ -18,7 +18,7 @@ Use this GNOME Shell extension to skip, toggle playback and restart/backtrack th
 
 ![Error mi amigo!](res/example.png "Extension on far right!")
 
-\* I have customised my installation of the Spotify Label extension, see issue #1 for more info
+\* I have customised my installation of the Spotify Label extension, see issue [#1](https://github.com/koolskateguy89/gnome-shell-extension-spotify-controller/issues/1) for more info
 
 ## Installation
 
