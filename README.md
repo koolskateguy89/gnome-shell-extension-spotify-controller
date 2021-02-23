@@ -2,7 +2,7 @@
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
-**This extension started as a clone of the [Spotify Label Extension](https://github.com/mheine/gnome-shell-spotify-label) that I adapted quite a bit. Credit to [Marcus Heine @mheine](https://github.com/mheine) for the majority of the code here.**
+**This extension started as a clone of the [Spotify Label Extension](https://github.com/mheine/gnome-shell-spotify-label) that I adapted quite a bit. Credit to [Marcus Heine (@mheine)](https://github.com/mheine) for the majority of the code here.**
 
 **Table of Contents** _generated with [DocToc](https://github.com/thlorenz/doctoc)_
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
@@ -14,11 +14,11 @@
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-Use this GNOME Shell extension to skip, toggle pause/play and restart/backtrack the current song. This works well with [Spotify Label Extension](https://github.com/mheine/gnome-shell-spotify-label), as seen on the left of the example below*
+Use this GNOME Shell extension to skip, toggle playback and restart/backtrack the current song. This works well with the [Spotify Label Extension](https://github.com/mheine/gnome-shell-spotify-label), as seen on the left of the example below*
 
 ![Error mi amigo!](res/example.png "Extension on far right!")
 
-\* I have customised my installation of the Spotify Label extension to include the Spotify icon, brackets & album (open an issue if you want to know how!)
+\* I have customised my installation of the Spotify Label extension, see issue #1 for more info
 
 ## Installation
 
@@ -52,7 +52,7 @@ If you copied the extension, you can delete the repo folder (`cd .. && rm -r gno
 
 ## Prerequisites
 
-The only thing you 'need' is `dbus-send` but I think it comes with GNOME Shell. To check you have it, simply run the command
+The only thing you 'need' is `dbus-send` but I think it comes with GNOME Shell/Linux. To check you have it, simply run the command
 ```
 command -v dbus-send
 ```
