@@ -10,7 +10,7 @@
       <default>5</default>
     </key>
 
-    <!--
+    <!-- change to refresh-rate?
     <key name="update-time" type="d">
       <default>0.8</default>
     </key>

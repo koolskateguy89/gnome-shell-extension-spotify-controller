@@ -13,6 +13,7 @@ const settings = ExtensionUtils.getSettings('org.gnome.shell.extensions.spotify-
 var lastExtensionPlace, lastExtensionIndex;
 var onLeftPaddingChanged, onRightPaddingChanged;
 var onExtensionPlaceChanged, onExtensionIndexChanged;
+var showInactive, hide = true;
 
 
 const base = 'dbus-send --print-reply --dest=org.mpris.MediaPlayer2.spotify /org/mpris/MediaPlayer2';
@@ -20,13 +21,13 @@ const actionBase = base + ' org.mpris.MediaPlayer2.Player.';
 
 // short status
 //dbus-send --print-reply --dest=org.mpris.MediaPlayer2.spotify /org/mpris/MediaPlayer2 org.freedesktop.DBus.Properties.Get string:'org.mpris.MediaPlayer2.Player' string:'PlaybackStatus'|egrep -A 1 \"string\"|cut -b 26-|cut -d '\"' -f 1|egrep -v ^$
-// Next
-//dbus-send --print-reply --dest=org.mpris.MediaPlayer2.spotify /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player.Next
 
 //dbus-send --print-reply --dest=org.mpris.MediaPlayer2.spotify /org/mpris/MediaPlayer2 org.freedesktop.DBus.Properties.Get string:'org.mpris.MediaPlayer2.Player' string:'PlaybackStatus'
-const status = base + " org.freedesktop.DBus.Properties.Get string:'org.mpris.MediaPlayer2.Player' string:'PlaybackStatus'" // |egrep -A 1 \"string\"|cut -b 26-|cut -d '\"' -f 1|egrep -v ^$
-//const song = base + " org.freedesktop.DBus.Properties.Get string:'org.mpris.MediaPlayer2.Player' string:'Metadata'|egrep -A 1 \"title\"|egrep -v \"title\"|cut -b 44-|cut -d '\"' -f 1|egrep -v ^$"
-//const artist = base + " org.freedesktop.DBus.Properties.Get string:'org.mpris.MediaPlayer2.Player' string:'Metadata'|egrep -A 2 \"artist\"|egrep -v \"artist\"|egrep -v \"array\"|cut -b 27-|cut -d '\"' -f 1|egrep -v ^$"
+
+const statusCMD = base + " org.freedesktop.DBus.Properties.Get string:'org.mpris.MediaPlayer2.Player' string:'PlaybackStatus'" // |egrep -A 1 \"string\"|cut -b 26-|cut -d '\"' -f 1|egrep -v ^$
+
+// Use grep & cut for hopefully faster string manipulation - nope it's slower most of the time
+//const status = "sh -c \"" + base + " org.freedesktop.DBus.Properties.Get string:'org.mpris.MediaPlayer2.Player' string:'PlaybackStatus'|egrep -A 1 \\\"string\\\"|cut -b 26-|cut -d '\\\"' -f 1|egrep -v ^$\""
 
 const toggleCMD = actionBase + 'PlayPause';
 const nextCMD = actionBase + 'Next';
@@ -36,25 +37,32 @@ function getStatus() {
 	let [res, out, err, exitStatus] = [];
 	try {
 		//Use GLib to send a dbus request with the expectation of receiving an MPRIS v2 response.
-		[res, out, err, exitStatus] = GLib.spawn_command_line_sync(status);
-		try {
-			return out.toString().split("string ")[1].split('"').join("").trim(); // .split.join is replaceAll
-		} catch (err2) {
-			global.log(err2);
-			return undefined;
-		}
-	} catch (err) {
-		// most likely Spotify not open
+		[res, out, err, exitStatus] = GLib.spawn_command_line_sync(statusCMD);
+
+		out = out.toString().split("string ");
+
+		if (!out[1])	// Spotify isn't open
+			return;
+
+		out = out[1];
+		const secondSpMark = out.indexOf('"', 1);
+
+		return out.substring(1, secondSpMark);
+
+	} catch (err1) {
+		// most likely Spotify not open - tbh idk if this is true
 		//global.log("spotify-controller: error getting status: res: " + res + " -- exitStatus: " + exitStatus + " -- err:" + err);
+		global.log('spotify-controller: ' + err1);
 	}
 }
 function run(cmd) {
 	let [res, out, err, exitStatus] = [];
 	try {
 		[res, out, err, exitStatus] = GLib.spawn_command_line_sync(cmd);
-	} catch (err) {
-		// most likely Spotify not open
+	} catch (err1) {
+		// most likely Spotify not open - tbh idk if this is true
 		//global.log("spotify-controller: error editing song: res: " + res + " -- exitStatus: " + exitStatus + " -- err:" + err);
+		global.log('spotify-controller: ' + err1);
 	}
 }
 function nextSong() {
@@ -68,13 +76,11 @@ function toggle() {
 }
 
 function isPlaying() {
-	var _status = getStatus();
-	if (_status) {
-		return (_status === "Playing");
-	}
-	// if it gets to here, most likely Spotify not open
-	//global.log("controlspotify: bad status");
-	return null;
+	var status = getStatus();
+	if (status)
+		return (status === "Playing");
+
+	// if we get here, most likely Spotify isn't open
 }
 
 function padStr(direction) {
@@ -82,10 +88,10 @@ function padStr(direction) {
 }
 
 
-const backward = 'media-skip-backward-symbolic';
-const forward = 'media-skip-forward-symbolic';
-const play = 'media-playback-start-symbolic';
-const pause = 'media-playback-pause-symbolic';
+const backward 	= 'media-skip-backward-symbolic';
+const forward 	= 'media-skip-forward-symbolic';
+const play 		= 'media-playback-start-symbolic';
+const pause 	= 'media-playback-pause-symbolic';
 
 // TODO: fix & finish:
 //const red = new Clutter.ColorizeEffect(Clutter.Color.get_static(Clutter.StaticColor.RED));
@@ -112,7 +118,7 @@ class Previous extends St.Icon {
         this.connect('button-press-event', () => {previousSong(); controlBar.toggle._playIcon()});
 	}
 
-	_leftPaddingChanged(settings) {
+	_leftPaddingChanged() {
 		this.set_style(padStr('left'));
 	}
 });
@@ -138,7 +144,7 @@ class Next extends St.Icon {
         this.connect('button-press-event', () => {nextSong(); controlBar.toggle._playIcon()});
 	}
 
-	_rightPaddingChanged(settings) {
+	_rightPaddingChanged() {
 		this.set_style(padStr('right'));
 	}
 });
@@ -226,8 +232,6 @@ class ControlBar extends PanelMenu.Button {
 	}
 });
 
-var hide = true;
-
 class Extension {
 	constructor() {}
 
@@ -282,22 +286,28 @@ class Extension {
 				this.controlBar.toggle._playIcon();
 			}
 		} else {
-			if (!hide) {
-				hide = true;
-				var show_inactive = settings.get_boolean('show-inactive');
-				if (!show_inactive) {
+			global.log("spotify closed")
+			global.log(`hide: ${hide}`);
+
+			hide = true;
+
+			const newShowInactive = settings.get_boolean('show-inactive');
+
+			if (newShowInactive !== showInactive) {
+				showInactive = newShowInactive;
+				if (showInactive) {
+					var insertBox = getPanel(lastExtensionPlace);
+					this.controlBar._insertAt(insertBox, lastExtensionIndex);
+				} else {
 					var removePanel = getPanel(lastExtensionPlace);
 					this.controlBar._removeFrom(removePanel);
 				}
 			}
 		}
 
-		//global.log(`hide: ${hide} Inact: ${settings.get_boolean('show-inactive')}`);
-		//global.log('');
-
 		this._removeTimeout();
 		// settings.get_double('update-time')
-		this._timeout = Mainloop.timeout_add_seconds(.8, Lang.bind(this, this._refresh));
+		this._timeout = Mainloop.timeout_add_seconds(1, Lang.bind(this, this._refresh));
 		return true;
 	}
 
@@ -318,7 +328,7 @@ class Extension {
 		var insertBox = getPanel(newExtensionPlace);
 
 		this.controlBar._removeFrom(removeBox);
-		if (!hide)
+		if (!hide || showInactive)
 			this.controlBar._insertAt(insertBox, newExtensionIndex);
 
 		lastExtensionPlace = newExtensionPlace;
