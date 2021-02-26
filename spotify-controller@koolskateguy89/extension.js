@@ -286,8 +286,8 @@ class Extension {
 				this.controlBar.toggle._playIcon();
 			}
 		} else {
-			global.log("spotify closed")
-			global.log(`hide: ${hide}`);
+			//global.log("spotify closed")
+			//global.log(`hide: ${hide}`);
 
 			hide = true;
 
