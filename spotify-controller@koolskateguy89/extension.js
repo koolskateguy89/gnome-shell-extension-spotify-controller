@@ -200,13 +200,13 @@ class ControlBar extends PanelMenu.Button {
 
 		this.toggle = new Toggle();
 
-		this.controlBar = new St.BoxLayout();
+		this.bar = new St.BoxLayout();
 
-		this.controlBar.add_child(this.previous);
-		this.controlBar.add_child(this.toggle);
-		this.controlBar.add_child(this.next);
+		this.bar.add_child(this.previous);
+		this.bar.add_child(this.toggle);
+		this.bar.add_child(this.next);
 
-		this.add_child(this.controlBar);
+		this.add_child(this.bar);
 	}
 
 	_insertAt(box, index) {
@@ -226,7 +226,7 @@ class ControlBar extends PanelMenu.Button {
 		this.next.destroy();
 		this.toggle.destroy();
 
-		this.controlBar.destroy();
+		this.bar.destroy();
 		super.destroy();
 	}
 });
