@@ -1,4 +1,4 @@
-const { Clutter, GLib, GObject, St } = imports.gi;
+const { Clutter, GLib, Gio, GObject, St } = imports.gi;
 
 const Lang = imports.lang;
 const Mainloop = imports.mainloop;
