@@ -28,7 +28,7 @@ function buildPrefsWidget() {
         use_markup: true,
         visible: true
     });
-    prefsWidget.attach(title, 0, index++, 1, 1);
+    prefsWidget.attach(title, 0, index, 1, 1);
 
 
 	/* left-padding */
@@ -37,7 +37,6 @@ function buildPrefsWidget() {
         halign: Gtk.Align.START,
         visible: true
     });
-    prefsWidget.attach(leftPaddingLabel, 0, index, 1, 1);
 
     let leftPaddingEntry = new Gtk.SpinButton({
         adjustment: new Gtk.Adjustment({
@@ -47,7 +46,10 @@ function buildPrefsWidget() {
         }),
         visible: true
     });
-    prefsWidget.attach(leftPaddingEntry, 1, index++, 1, 1);
+
+    index++;
+    prefsWidget.attach(leftPaddingLabel, 0, index, 1, 1);
+    prefsWidget.attach(leftPaddingEntry, 1, index, 1, 1);
 
 
     /* right-padding */
@@ -56,7 +58,6 @@ function buildPrefsWidget() {
         halign: Gtk.Align.START,
         visible: true
     });
-    prefsWidget.attach(rightPaddingLabel, 0, index, 1, 1);
 
     let rightPaddingEntry = new Gtk.SpinButton({
         adjustment: new Gtk.Adjustment({
@@ -66,7 +67,10 @@ function buildPrefsWidget() {
         }),
         visible: true
     });
-    prefsWidget.attach(rightPaddingEntry, 1, index++, 1, 1);
+
+    index++;
+    prefsWidget.attach(rightPaddingLabel, 0, index, 1, 1);
+    prefsWidget.attach(rightPaddingEntry, 1, index, 1, 1);
 
 
     // TODO: fix update time
@@ -76,30 +80,20 @@ function buildPrefsWidget() {
         halign: Gtk.Align.START,
         visible: true
     });
-    prefsWidget.attach(updateTimeLabel, 0, index, 1, 1);
 
-    //let scale = Gtk.Scale.new_with_range(Gtk.Orientation.HORIZONTAL, 0.0, 60.0, 0.2);
-    let scale = new Gtk.Scale ({
-        orientation: Gtk.Orientation.HORIZONTAL,
-        digits: 2,
-        visible: true,
-        adjustment: new Gtk.Adjustment({
-            value: settings.get_double('update-time'),
-            lower: 0.5,
-            upper: 5.0,
-            step_increment: 0.2,
-            page_increment: 0.4
-        })
-    });
-    /*let updateTimeEntry = new Gtk.Slider({
+    let updateTimeEntry = new Gtk.SpinButton({
         adjustment: new Gtk.Adjustment({
             lower: 1,
             upper: 60,
             step_increment: 1
         }),
         visible: true
-    });* /
-    prefsWidget.attach(scale, 1, index++, 1, 1);*/
+    });
+
+    index++;
+    prefsWidget.attach(updateTimeLabel, 0, index, 1, 1);
+    prefsWidget.attach(updateTimeEntry, 1, index, 1, 1);
+    */
 
 
     /* extension-place */
@@ -108,7 +102,6 @@ function buildPrefsWidget() {
         halign: Gtk.Align.START,
         visible: true
     });
-    prefsWidget.attach(extensionPlaceLabel, 0, index, 1, 1);
 
 	let options = ['left', 'center', 'right'];
     let extensionPlaceComboBox = new Gtk.ComboBoxText({
@@ -116,11 +109,11 @@ function buildPrefsWidget() {
     	visible: true
     });
     options.forEach(opt => extensionPlaceComboBox.append(opt, opt));
-    /*for (let i = 0; i < options.length; i++) {
-      extensionPlaceComboBox.append(options[i],  options[i]);
-    }*/
     extensionPlaceComboBox.set_active(options.indexOf(settings.get_string('extension-place')));
-    prefsWidget.attach(extensionPlaceComboBox, 1, index++, 1, 1);
+
+    index++;
+    prefsWidget.attach(extensionPlaceLabel, 0, index, 1, 1);
+    prefsWidget.attach(extensionPlaceComboBox, 1, index, 1, 1);
 
 
     /* extension-index */
@@ -129,7 +122,6 @@ function buildPrefsWidget() {
         halign: Gtk.Align.START,
         visible: true
     });
-    prefsWidget.attach(extensionIndexLabel, 0, index, 1, 1);
 
     let extensionIndexEntry = new Gtk.SpinButton({
         adjustment: new Gtk.Adjustment({
@@ -139,7 +131,10 @@ function buildPrefsWidget() {
         }),
         visible: true
     });
-    prefsWidget.attach(extensionIndexEntry, 1, index++, 1, 1);
+
+    index++;
+    prefsWidget.attach(extensionIndexLabel, 0, index, 1, 1);
+    prefsWidget.attach(extensionIndexEntry, 1, index, 1, 1);
 
 
     /* show-inactive */
@@ -148,14 +143,16 @@ function buildPrefsWidget() {
         halign: Gtk.Align.START,
         visible: true
     });
-    prefsWidget.attach(showInactiveLabel, 0, index, 1, 1);
 
     let showInactiveSwitch = new Gtk.Switch({
         valign: Gtk.Align.END,
         halign: Gtk.Align.END,
         visible: true
-    })
-    prefsWidget.attach(showInactiveSwitch, 1, index++, 1, 1);
+    });
+
+    index++;
+    prefsWidget.attach(showInactiveLabel, 0, index, 1, 1);
+    prefsWidget.attach(showInactiveSwitch, 1, index, 1, 1);
 
 
     settings.bind('left-padding', leftPaddingEntry, 'value', Gio.SettingsBindFlags.DEFAULT);

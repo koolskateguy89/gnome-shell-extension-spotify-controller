@@ -23,8 +23,7 @@ const actionBase = base + ' org.mpris.MediaPlayer2.Player.';
 //dbus-send --print-reply --dest=org.mpris.MediaPlayer2.spotify /org/mpris/MediaPlayer2 org.freedesktop.DBus.Properties.Get string:'org.mpris.MediaPlayer2.Player' string:'PlaybackStatus'|egrep -A 1 \"string\"|cut -b 26-|cut -d '\"' -f 1|egrep -v ^$
 
 //dbus-send --print-reply --dest=org.mpris.MediaPlayer2.spotify /org/mpris/MediaPlayer2 org.freedesktop.DBus.Properties.Get string:'org.mpris.MediaPlayer2.Player' string:'PlaybackStatus'
-
-const statusCMD = base + " org.freedesktop.DBus.Properties.Get string:'org.mpris.MediaPlayer2.Player' string:'PlaybackStatus'" // |egrep -A 1 \"string\"|cut -b 26-|cut -d '\"' -f 1|egrep -v ^$
+const statusCMD = base + " org.freedesktop.DBus.Properties.Get string:'org.mpris.MediaPlayer2.Player' string:'PlaybackStatus'"
 
 // Use grep & cut for hopefully faster string manipulation - nope it's slower most of the time
 //const status = "sh -c \"" + base + " org.freedesktop.DBus.Properties.Get string:'org.mpris.MediaPlayer2.Player' string:'PlaybackStatus'|egrep -A 1 \\\"string\\\"|cut -b 26-|cut -d '\\\"' -f 1|egrep -v ^$\""
