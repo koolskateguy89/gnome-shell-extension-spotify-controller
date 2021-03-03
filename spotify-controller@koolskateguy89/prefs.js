@@ -5,7 +5,7 @@ const Lang = imports.lang;
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 
-const settings = (function() {  // basically copied from ExtensionUtils.getCurrentExtension() is recent Gnome Shell versions
+const settings = (function() {  // basically copied from ExtensionUtils.getCurrentExtension() in recent Gnome Shell versions
     const GioSSS = Gio.SettingsSchemaSource;
 
     // Load schema

@@ -6,8 +6,29 @@ const Main = imports.ui.main;
 const PanelMenu = imports.ui.panelMenu;
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
-const settings = ExtensionUtils.getSettings('org.gnome.shell.extensions.spotify-controller');
 
+//const settings = ExtensionUtils.getSettings('org.gnome.shell.extensions.spotify-controller');
+const settings = (function() {  // basically copied from ExtensionUtils.getCurrentExtension() in recent Gnome Shell versions
+    const GioSSS = Gio.SettingsSchemaSource;
+
+    // Load schema
+    let schemaSource = GioSSS.new_from_directory(
+        Me.dir.get_child('schemas').get_path(),
+        GioSSS.get_default(),
+        false
+    );
+
+    let schemaObj = schemaSource.lookup(
+        'org.gnome.shell.extensions.spotify-controller',
+        true
+    );
+
+    if (!schemaObj)
+        throw new Error(`Schema could not be found for extension ${Me.metadata.uuid}. Please check your installation`);
+
+    // Load settings from schema
+    return new Gio.Settings({ settings_schema: schemaObj });
+})();
 
 // variables to help
 var lastExtensionPlace, lastExtensionIndex;
