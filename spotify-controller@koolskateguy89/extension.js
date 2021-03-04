@@ -117,7 +117,7 @@ const pause 	= 'media-playback-pause-symbolic';
 //const red = new Clutter.ColorizeEffect(Clutter.Color.get_static(Clutter.StaticColor.RED));
 //const green = new Clutter.ColorizeEffect(Clutter.Color.get_static(Clutter.StaticColor.GREEN));
 
-var Previous = GObject.registerClass(
+const Previous = GObject.registerClass(
 class Previous extends St.Icon {
 	_init(controlBar) {
 		super._init({
@@ -135,7 +135,7 @@ class Previous extends St.Icon {
 			this._leftPaddingChanged.bind(this)
 		);
 
-        this.connect('button-press-event', () => {previousSong(); controlBar.toggle._pauseIcon()});
+        this.connect('button-press-event', () => { previousSong(); controlBar.toggle._pauseIcon(); });
 	}
 
 	_leftPaddingChanged() {
@@ -143,7 +143,7 @@ class Previous extends St.Icon {
 	}
 });
 
-var Next = GObject.registerClass(
+const Next = GObject.registerClass(
 class Next extends St.Icon {
 	_init(controlBar) {
 		super._init({
@@ -161,7 +161,7 @@ class Next extends St.Icon {
 			this._rightPaddingChanged.bind(this)
 		);
 
-        this.connect('button-press-event', () => {nextSong(); controlBar.toggle._pauseIcon()});
+        this.connect('button-press-event', () => { nextSong(); controlBar.toggle._pauseIcon(); });
 	}
 
 	_rightPaddingChanged() {
@@ -210,7 +210,7 @@ class Toggle extends St.Icon {
 });
 
 
-var ControlBar = GObject.registerClass(
+const ControlBar = GObject.registerClass(
 class ControlBar extends PanelMenu.Button {
 	_init() {
 		super._init(0.0, 'SpotifyController-ControlBar');
