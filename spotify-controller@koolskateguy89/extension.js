@@ -229,7 +229,10 @@ const ControlBar = new Lang.Class({
 		this.bar.add_child(this.toggle);
 		this.bar.add_child(this.next);
 
-		this.add_child(this.bar);
+		if ((typeof this.add_child) === 'function')
+			this.add_child(this.bar);
+		else
+			this.actor.add_actor(this.bar);
 	},
 
 	_insertAt: function(box, index) {
