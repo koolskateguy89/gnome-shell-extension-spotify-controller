@@ -117,7 +117,7 @@ const pause 	= 'media-playback-pause-symbolic';
 //const red = new Clutter.ColorizeEffect(Clutter.Color.get_static(Clutter.StaticColor.RED));
 //const green = new Clutter.ColorizeEffect(Clutter.Color.get_static(Clutter.StaticColor.GREEN));
 
-var Previous = GObject.registerClass(
+const Previous = GObject.registerClass(
 class Previous extends St.Icon {
 	_init(controlBar) {
 		super._init({
@@ -143,7 +143,7 @@ class Previous extends St.Icon {
 	}
 });
 
-var Next = GObject.registerClass(
+const Next = GObject.registerClass(
 class Next extends St.Icon {
 	_init(controlBar) {
 		super._init({
@@ -240,7 +240,7 @@ const ControlBar = new Lang.Class({
 		box.remove_actor(this.container);
 	},
 
-	_destroy: function() {
+	destroy: function() {
 		if (this.toggle._timeout) {
 			this.toggle._removeTimeout();
 		}
@@ -250,8 +250,7 @@ const ControlBar = new Lang.Class({
 		this.toggle.destroy();
 
 		this.bar.destroy();
-		this.parent();
-		//super.destroy();
+		this.parent(); //super.destroy();
 	}
 });
 
@@ -284,7 +283,8 @@ class Extension {
 		settings.disconnect(onExtensionPlaceChanged);
 		settings.disconnect(onExtensionIndexChanged);
 
-		this.controlBar._destroy();
+		this.controlBar.destroy();
+		hide = true;
 
 		if (this._timeout) {
 			Mainloop.source_remove(this._timeout);
