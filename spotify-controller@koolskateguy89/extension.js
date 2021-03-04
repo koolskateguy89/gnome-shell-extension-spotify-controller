@@ -210,10 +210,12 @@ class Toggle extends St.Icon {
 });
 
 
-const ControlBar = GObject.registerClass(
-class ControlBar extends PanelMenu.Button {
-	_init() {
-		super._init(0.0, 'SpotifyController-ControlBar');
+const ControlBar = new Lang.Class({
+	Name: 'SpotifyController-ControlBar',
+	Extends: PanelMenu.Button,
+
+	_init: function() {
+		this.parent(0, 'SpotifyController-ControlBar');
 
 		this.previous = new Previous(this);
 
@@ -227,18 +229,21 @@ class ControlBar extends PanelMenu.Button {
 		this.bar.add_child(this.toggle);
 		this.bar.add_child(this.next);
 
-		this.add_child(this.bar);
-	}
+		if ((typeof this.add_child) === 'function')
+			this.add_child(this.bar);
+		else
+			this.actor.add_actor(this.bar);
+	},
 
-	_insertAt(box, index) {
+	_insertAt: function(box, index) {
 		box.insert_child_at_index(this.container, index);
-	}
+	},
 
-	_removeFrom(box) {
+	_removeFrom: function(box) {
 		box.remove_actor(this.container);
-	}
+	},
 
-	_destroy() {
+	destroy: function() {
 		if (this.toggle._timeout) {
 			this.toggle._removeTimeout();
 		}
@@ -248,7 +253,7 @@ class ControlBar extends PanelMenu.Button {
 		this.toggle.destroy();
 
 		this.bar.destroy();
-		super.destroy();
+		this.parent(); //super.destroy();
 	}
 });
 
@@ -281,7 +286,7 @@ class Extension {
 		settings.disconnect(onExtensionPlaceChanged);
 		settings.disconnect(onExtensionIndexChanged);
 
-		this.controlBar._destroy();
+		this.controlBar.destroy();
 		hide = true;
 
 		if (this._timeout) {
