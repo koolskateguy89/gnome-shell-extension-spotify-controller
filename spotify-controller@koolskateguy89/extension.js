@@ -282,6 +282,7 @@ class Extension {
 		settings.disconnect(onExtensionIndexChanged);
 
 		this.controlBar._destroy();
+		hide = true;
 
 		if (this._timeout) {
 			Mainloop.source_remove(this._timeout);
