@@ -135,7 +135,7 @@ class Previous extends St.Icon {
 			this._leftPaddingChanged.bind(this)
 		);
 
-        this.connect('button-press-event', () => {previousSong(); controlBar.toggle._playIcon()});
+        this.connect('button-press-event', () => {previousSong(); controlBar.toggle._pauseIcon()});
 	}
 
 	_leftPaddingChanged() {
@@ -161,7 +161,7 @@ class Next extends St.Icon {
 			this._rightPaddingChanged.bind(this)
 		);
 
-        this.connect('button-press-event', () => {nextSong(); controlBar.toggle._playIcon()});
+        this.connect('button-press-event', () => {nextSong(); controlBar.toggle._pauseIcon()});
 	}
 
 	_rightPaddingChanged() {
