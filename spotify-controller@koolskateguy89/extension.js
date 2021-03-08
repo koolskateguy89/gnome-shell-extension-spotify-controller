@@ -129,6 +129,8 @@ class Previous extends St.Icon {
             style: padStr('left')
         });
 
+
+
 		// Listen for update of left padding in settings
         onLeftPaddingChanged = settings.connect(
 			'changed::left-padding',

@@ -28,5 +28,17 @@
       <default>false</default>
     </key>
 
+    <key name="prev-icon-color" type="s">
+      <default>'white'</default>
+    </key>
+
+    <key name="toggle-icon-color" type="s">
+      <default>'white'</default>
+    </key>
+
+    <key name="toggle-icon-color" type="s">
+      <default>'white'</default>
+    </key>
+
   </schema>
 </schemalist>
