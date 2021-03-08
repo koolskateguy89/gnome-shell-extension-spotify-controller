@@ -178,11 +178,11 @@ function buildPrefsWidget() {
 
 
     // busctl --user call org.gnome.Shell /org/gnome/Shell org.gnome.Shell Eval s 'Meta.restart("Restarting…")'
+    /* *-icon-color */
     let colorGrid = buildColorGrid();
 
     index++;
     prefsWidget.attach(colorGrid, 0, index, 1, 1);
-
 
 
     settings.bind('left-padding', leftPaddingEntry, 'value', Gio.SettingsBindFlags.DEFAULT);
@@ -194,10 +194,12 @@ function buildPrefsWidget() {
     settings.bind('extension-index', extensionIndexEntry, 'value', Gio.SettingsBindFlags.DEFAULT);
     settings.bind('show-inactive', showInactiveSwitch, 'active', Gio.SettingsBindFlags.DEFAULT);
 
+
     return prefsWidget;
 }
 
 function buildColorGrid() {
+
     let colorGrid = new Gtk.Grid({
         margin: 12,
         column_spacing: 12,
@@ -206,18 +208,21 @@ function buildColorGrid() {
         column_homogeneous: true,
     });
 
+
     /* prev-icon-color */
     let prevColorLabel = new Gtk.Label({
         label: 'Previous Icon color:',
         halign: Gtk.Align.START,
         visible: true
     });
+
     let prevColorButton = new Gtk.ColorButton({
         visible: true
     });
     prevColorButton.set_color(Gdk.Color.parse(settings.get_string('prev-icon-color'))[1]);
 
     colorGrid.attach(prevColorLabel, 0, 0, 1, 1);
+
     colorGrid.attach(prevColorButton, 1, 0, 1, 1);
 
     /* next-icon-color */
@@ -226,6 +231,7 @@ function buildColorGrid() {
         halign: Gtk.Align.START,
         visible: true
     });
+
     let nextColorButton = new Gtk.ColorButton({
         visible: true
     });
@@ -234,12 +240,14 @@ function buildColorGrid() {
     colorGrid.attach(nextColorLabel, 0, 1, 1, 1);
     colorGrid.attach(nextColorButton, 1, 1, 1, 1);
 
+
     /* pause-icon-color */
     let pauseColorLabel = new Gtk.Label({
         label: 'Pause Icon color:',
         halign: Gtk.Align.START,
         visible: true
     });
+
     let pauseColorButton = new Gtk.ColorButton({
         visible: true
     });
@@ -248,12 +256,14 @@ function buildColorGrid() {
     colorGrid.attach(pauseColorLabel, 0, 2, 1, 1);
     colorGrid.attach(pauseColorButton, 1, 2, 1, 1);
 
+
     /* play-icon-color */
     let playColorLabel = new Gtk.Label({
         label: 'Play Icon color:',
         halign: Gtk.Align.START,
         visible: true
     });
+
     let playColorButton = new Gtk.ColorButton({
         visible: true
     });
@@ -288,8 +298,11 @@ function buildColorGrid() {
     return colorGrid;
 }
 
-// parse 12-digit hex (given by Gdk.Color) to 6-digit needed for CSS
+// parse 12-digit hex (given by Gdk.Color) to 6-digit needed for CSS - some accuracy WILL be lost
 function parseHex(hex = '#000000000000') {
+    if (hex.length === 7)
+        return hex;
+
     // split color into its constituent parts
     var red = hex.substring(1, 5);
     var green = hex.substring(5, 9);
@@ -300,7 +313,7 @@ function parseHex(hex = '#000000000000') {
     green = parseInt(green, 16);
     blue = parseInt(blue, 16);
 
-    // divide by 16^2 to try and 'simulate' 4 digit -> 2 digit
+    // divide by 16^2 to try and 'simulate' 16^4 bits -> 16^2 bits
     red = Math.floor(red / 256);
     green = Math.floor(green / 256);
     blue = Math.floor(blue / 256);
@@ -317,6 +330,7 @@ function parseHex(hex = '#000000000000') {
         green = '0' + green;
     if (blue.length < 2)
         blue = '0' + blue;
+
 
     return `#${red}${green}${blue}`;
 }

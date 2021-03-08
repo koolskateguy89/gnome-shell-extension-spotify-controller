@@ -284,7 +284,7 @@ const ControlBar = new Lang.Class({
 });
 
 class Extension {
-	constructor() {}	// do I need to define this????
+	constructor() {}	// do I need to define this???? - isn't it implicitly defined?
 
 	enable() {
 		lastExtensionPlace = settings.get_string('extension-place');
