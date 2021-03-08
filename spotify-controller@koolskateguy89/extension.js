@@ -1,11 +1,13 @@
 const { Clutter, GLib, Gio, GObject, St } = imports.gi;
 
+const ByteArray = imports.byteArray;
 const Lang = imports.lang;
 const Mainloop = imports.mainloop;
 const Main = imports.ui.main;
 const PanelMenu = imports.ui.panelMenu;
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
+
 
 //const settings = ExtensionUtils.getSettings('org.gnome.shell.extensions.spotify-controller');
 const settings = (function() {  // basically copied from ExtensionUtils.getCurrentExtension() in recent Gnome Shell versions
@@ -59,7 +61,7 @@ function getStatus() {
 		//Use GLib to send a dbus request with the expectation of receiving an MPRIS v2 response.
 		[res, out, err, exitStatus] = GLib.spawn_command_line_sync(statusCMD);
 
-		out = out.toString().split("string ");
+		out = ByteArray.toString(out).split("string ");
 
 		if (!out[1])	// Spotify isn't open
 			return;
