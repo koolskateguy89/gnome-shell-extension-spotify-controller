@@ -185,7 +185,7 @@ function buildPrefsWidget() {
         visible: true
     });
 
-    idnex++;
+    index++;
     prefsWidget.attach(prevColorLabel, 0, index, 1, 1);
 
 
