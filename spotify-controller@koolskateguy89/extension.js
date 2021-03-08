@@ -8,7 +8,6 @@ const PanelMenu = imports.ui.panelMenu;
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 
-
 //const settings = ExtensionUtils.getSettings('org.gnome.shell.extensions.spotify-controller');
 const settings = (function() {  // basically copied from ExtensionUtils.getCurrentExtension() in recent Gnome Shell versions
     const GioSSS = Gio.SettingsSchemaSource;
