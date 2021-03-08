@@ -176,9 +176,47 @@ function buildPrefsWidget() {
     prefsWidget.attach(showInactiveSwitch, 1, index, 1, 1);
 
 
+    index++;    // spacing
+
+    /* prev-icon-color */
+    let prevColorLabel = new Gtk.Label({
+        label: 'Previous Icon color:',
+        halign: Gtk.Align.START,
+        visible: true
+    });
+
+    idnex++;
+    prefsWidget.attach(prevColorLabel, 0, index, 1, 1);
+
+
+    /* next-icon-color */
+    let nextColorLabel = new Gtk.Label({
+        label: 'Next Icon color:',
+        halign: Gtk.Align.START,
+        visible: true
+    });
+
+
+    /* pause-icon-color */
+    let pauseColorLabel = new Gtk.Label({
+        label: 'Pause Icon color:',
+        halign: Gtk.Align.START,
+        visible: true
+    });
+
+
+    /* play-icon-color */
+    let playColorLabel = new Gtk.Label({
+        label: 'Play Icon color:',
+        halign: Gtk.Align.START,
+        visible: true
+    });
+
+
+
     settings.bind('left-padding', leftPaddingEntry, 'value', Gio.SettingsBindFlags.DEFAULT);
     settings.bind('right-padding', rightPaddingEntry, 'value', Gio.SettingsBindFlags.DEFAULT);
-    //settings.bind('update-time', scale, 'value', Gio.SettingsBindFlags.DEFAULT);
+    //settings.bind('update-time', updateTimeEntry, 'value', Gio.SettingsBindFlags.DEFAULT);
     extensionPlaceComboBox.connect('changed', Lang.bind(this, function(widget) {
         settings.set_string('extension-place', options[widget.get_active()]);
     }));

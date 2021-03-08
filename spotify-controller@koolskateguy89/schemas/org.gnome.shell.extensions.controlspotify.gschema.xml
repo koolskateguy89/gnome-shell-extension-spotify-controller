@@ -28,15 +28,20 @@
       <default>false</default>
     </key>
 
+
     <key name="prev-icon-color" type="s">
       <default>'white'</default>
     </key>
 
-    <key name="toggle-icon-color" type="s">
+    <key name="next-icon-color" type="s">
       <default>'white'</default>
     </key>
 
-    <key name="toggle-icon-color" type="s">
+    <key name="pause-icon-color" type="s">
+      <default>'white'</default>
+    </key>
+
+    <key name="play-icon-color" type="s">
       <default>'white'</default>
     </key>
 

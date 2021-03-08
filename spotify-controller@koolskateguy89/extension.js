@@ -1,5 +1,6 @@
-const { Clutter, GLib, Gio, GObject, St } = imports.gi;
+const { GLib, Gio, GObject, St } = imports.gi;
 
+const ByteArray = imports.byteArray;
 const Lang = imports.lang;
 const Mainloop = imports.mainloop;
 const Main = imports.ui.main;
@@ -59,7 +60,7 @@ function getStatus() {
 		//Use GLib to send a dbus request with the expectation of receiving an MPRIS v2 response.
 		[res, out, err, exitStatus] = GLib.spawn_command_line_sync(statusCMD);
 
-		out = out.toString().split("string ");
+		out = ByteArray.toString(out).split("string ");
 
 		if (!out[1])	// Spotify isn't open
 			return;
@@ -113,9 +114,6 @@ const forward 	= 'media-skip-forward-symbolic';
 const play 		= 'media-playback-start-symbolic';
 const pause 	= 'media-playback-pause-symbolic';
 
-// TODO: fix & finish:
-//const red = new Clutter.ColorizeEffect(Clutter.Color.get_static(Clutter.StaticColor.RED));
-//const green = new Clutter.ColorizeEffect(Clutter.Color.get_static(Clutter.StaticColor.GREEN));
 
 const Previous = GObject.registerClass(
 class Previous extends St.Icon {
