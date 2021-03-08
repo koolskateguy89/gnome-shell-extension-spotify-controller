@@ -132,7 +132,7 @@ class Previous extends St.Icon {
             reactive: true,
             icon_name: backward,
             style_class: 'system-status-icon',
-            style: styleStr('left', 'prev')
+            style: styleStr('left', 'prev'),
         });
 
 		// Listen for update of left padding in settings
@@ -163,7 +163,7 @@ class Next extends St.Icon {
             reactive: true,
             icon_name: forward,
             style_class: 'system-status-icon',
-            style: styleStr('right', 'next')
+            style: styleStr('right', 'next'),
         });
 
 		// Listen for update of right padding in settings
@@ -194,7 +194,7 @@ class Toggle extends St.Icon {
             reactive: true,
             icon_name: play,
             style_class: 'system-status-icon',
-            style: 'color: ' + settings.get_string('play-icon-color')
+            style: 'color: ' + settings.get_string('play-icon-color'),
         });
 
         onPauseIconColorChanged = settings.connect(
@@ -284,7 +284,7 @@ const ControlBar = new Lang.Class({
 });
 
 class Extension {
-	constructor() {}
+	constructor() {}	// do I need to define this????
 
 	enable() {
 		lastExtensionPlace = settings.get_string('extension-place');
