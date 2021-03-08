@@ -82,7 +82,7 @@ function run(cmd) {
 		[res, out, err, exitStatus] = GLib.spawn_command_line_sync(cmd);
 	} catch (err1) {
 		// most likely Spotify not open - tbh idk if this is true
-		//global.log("spotify-controller: error editing song: res: " + res + " -- exitStatus: " + exitStatus + " -- err:" + err);
+		//global.log("spotify-controller: error running command: res: " + res + " -- exitStatus: " + exitStatus + " -- err:" + err);
 		global.log('spotify-controller: ' + err1);
 	}
 }
