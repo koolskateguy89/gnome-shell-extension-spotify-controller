@@ -1,4 +1,4 @@
-const { Clutter, GLib, Gio, GObject, St } = imports.gi;
+const { GLib, Gio, GObject, St } = imports.gi;
 
 const ByteArray = imports.byteArray;
 const Lang = imports.lang;
@@ -115,9 +115,6 @@ const forward 	= 'media-skip-forward-symbolic';
 const play 		= 'media-playback-start-symbolic';
 const pause 	= 'media-playback-pause-symbolic';
 
-// TODO: fix & finish:
-//const red = new Clutter.ColorizeEffect(Clutter.Color.get_static(Clutter.StaticColor.RED));
-//const green = new Clutter.ColorizeEffect(Clutter.Color.get_static(Clutter.StaticColor.GREEN));
 
 const Previous = GObject.registerClass(
 class Previous extends St.Icon {
