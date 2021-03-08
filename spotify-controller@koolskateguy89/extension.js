@@ -33,9 +33,13 @@ const settings = (function() {  // basically copied from ExtensionUtils.getCurre
 
 // variables to help
 var lastExtensionPlace, lastExtensionIndex;
+var showInactive, hide = true;
+
+// signals
 var onLeftPaddingChanged, onRightPaddingChanged;
 var onExtensionPlaceChanged, onExtensionIndexChanged;
-var showInactive, hide = true;
+var onPrevIconColorChanged, onNextIconColorChanged;
+var onPauseIconColorChanged, onPlayIconColorChanged;	// wow these variables have long names
 
 
 const base = 'dbus-send --print-reply --dest=org.mpris.MediaPlayer2.spotify /org/mpris/MediaPlayer2';
@@ -53,6 +57,7 @@ const statusCMD = base + " org.freedesktop.DBus.Properties.Get string:'org.mpris
 const toggleCMD = actionBase + 'PlayPause';
 const nextCMD = actionBase + 'Next';
 const prevCMD = actionBase + 'Previous';
+
 
 function getStatus() {
 	let [res, out, err, exitStatus] = [];
@@ -82,7 +87,7 @@ function run(cmd) {
 		[res, out, err, exitStatus] = GLib.spawn_command_line_sync(cmd);
 	} catch (err1) {
 		// most likely Spotify not open - tbh idk if this is true
-		//global.log("spotify-controller: error editing song: res: " + res + " -- exitStatus: " + exitStatus + " -- err:" + err);
+		//global.log("spotify-controller: error running command: res: " + res + " -- exitStatus: " + exitStatus + " -- err:" + err);
 		global.log('spotify-controller: ' + err1);
 	}
 }
@@ -104,8 +109,11 @@ function isPlaying() {
 	// if we get here, most likely Spotify isn't open
 }
 
-function padStr(direction) {
-	return `padding-${direction}: ${settings.get_int(direction+"-padding")}px; `;
+function styleStr(direction, iconType) {
+	return `
+		padding-${direction}: ${settings.get_int(direction + "-padding")}px;
+		color: ${settings.get_string(iconType + "-icon-color")};
+		`;
 }
 
 
@@ -124,22 +132,25 @@ class Previous extends St.Icon {
             reactive: true,
             icon_name: backward,
             style_class: 'system-status-icon',
-            style: padStr('left')
+            style: styleStr('left', 'prev')
         });
-
-
 
 		// Listen for update of left padding in settings
         onLeftPaddingChanged = settings.connect(
 			'changed::left-padding',
-			this._leftPaddingChanged.bind(this)
+			this._styleChanged.bind(this)
+		);
+
+		onPrevIconColorChanged = settings.connect(
+			'changed::prev-icon-color',
+			this._styleChanged.bind(this)
 		);
 
         this.connect('button-press-event', () => { previousSong(); controlBar.toggle._pauseIcon(); });
 	}
 
-	_leftPaddingChanged() {
-		this.set_style(padStr('left'));
+	_styleChanged() {
+		this.set_style(styleStr('left', 'prev'));
 	}
 });
 
@@ -152,20 +163,25 @@ class Next extends St.Icon {
             reactive: true,
             icon_name: forward,
             style_class: 'system-status-icon',
-            style: padStr('right')
+            style: styleStr('right', 'next')
         });
 
 		// Listen for update of right padding in settings
         onRightPaddingChanged = settings.connect(
 			'changed::right-padding',
-			this._rightPaddingChanged.bind(this)
+			this._styleChanged.bind(this)
+		);
+
+		onNextIconColorChanged = settings.connect(
+			'changed::next-icon-color',
+			this._styleChanged.bind(this)
 		);
 
         this.connect('button-press-event', () => { nextSong(); controlBar.toggle._pauseIcon(); });
 	}
 
-	_rightPaddingChanged() {
-		this.set_style(padStr('right'));
+	_styleChanged() {
+		this.set_style(styleStr('right', 'next'));
 	}
 });
 
@@ -177,34 +193,44 @@ class Toggle extends St.Icon {
             can_focus: true,
             reactive: true,
             icon_name: play,
-            style_class: 'system-status-icon'
+            style_class: 'system-status-icon',
+            style: 'color: ' + settings.get_string('play-icon-color')
         });
+
+        onPauseIconColorChanged = settings.connect(
+			'changed::pause-icon-color',
+			this._styleChanged.bind(this)
+		);
+
+		onPlayIconColorChanged = settings.connect(
+			'changed::play-icon-color',
+			this._styleChanged.bind(this)
+		);
 
 		this.connect('button-press-event', this._toggle);
 	}
 
+	_styleChanged() {
+		const current = this.icon_name === play ? 'play' : 'pause';
+		this.set_style('color: ' + settings.get_string(`${current}-icon-color`));
+	}
+
 	_pauseIcon() {
 		this.icon_name = pause;
-		//global.log('\nto red')
-		//this.clear_effects();
-		//this.add_effect(red);
+		this._styleChanged();
 	}
 
 	_playIcon() {
 		this.icon_name = play;
-		//global.log('\nto green')
-		//this.clear_effects();
-		//this.add_effect(green);
+		this._styleChanged();
 	}
 
-	// for some reason if I try using this.[...], it gives
-	// JS ERROR: TypeError: this is null
 	_toggle(thisObj) {
 		toggle();
 		if (thisObj.icon_name === play) {
-			thisObj.icon_name = pause;
+			thisObj._pauseIcon();
 		} else {
-			thisObj.icon_name = play;
+			thisObj._playIcon();
 		}
 	}
 });
@@ -285,6 +311,11 @@ class Extension {
 		settings.disconnect(onRightPaddingChanged);
 		settings.disconnect(onExtensionPlaceChanged);
 		settings.disconnect(onExtensionIndexChanged);
+
+		settings.disconnect(onPrevIconColorChanged);
+		settings.disconnect(onNextIconColorChanged);
+		settings.disconnect(onPauseIconColorChanged);
+		settings.disconnect(onPlayIconColorChanged);
 
 		this.controlBar.destroy();
 		hide = true;

@@ -1,5 +1,6 @@
 const Gio = imports.gi.Gio;
 const Gtk = imports.gi.Gtk;
+const Gdk = imports.gi.Gdk;
 const Lang = imports.lang;
 
 const ExtensionUtils = imports.misc.extensionUtils;
@@ -176,41 +177,11 @@ function buildPrefsWidget() {
     prefsWidget.attach(showInactiveSwitch, 1, index, 1, 1);
 
 
-    index++;    // spacing
-
-    /* prev-icon-color */
-    let prevColorLabel = new Gtk.Label({
-        label: 'Previous Icon color:',
-        halign: Gtk.Align.START,
-        visible: true
-    });
+    // busctl --user call org.gnome.Shell /org/gnome/Shell org.gnome.Shell Eval s 'Meta.restart("Restarting…")'
+    let colorGrid = buildColorGrid();
 
     index++;
-    prefsWidget.attach(prevColorLabel, 0, index, 1, 1);
-
-
-    /* next-icon-color */
-    let nextColorLabel = new Gtk.Label({
-        label: 'Next Icon color:',
-        halign: Gtk.Align.START,
-        visible: true
-    });
-
-
-    /* pause-icon-color */
-    let pauseColorLabel = new Gtk.Label({
-        label: 'Pause Icon color:',
-        halign: Gtk.Align.START,
-        visible: true
-    });
-
-
-    /* play-icon-color */
-    let playColorLabel = new Gtk.Label({
-        label: 'Play Icon color:',
-        halign: Gtk.Align.START,
-        visible: true
-    });
+    prefsWidget.attach(colorGrid, 0, index, 1, 1);
 
 
 
@@ -223,6 +194,129 @@ function buildPrefsWidget() {
     settings.bind('extension-index', extensionIndexEntry, 'value', Gio.SettingsBindFlags.DEFAULT);
     settings.bind('show-inactive', showInactiveSwitch, 'active', Gio.SettingsBindFlags.DEFAULT);
 
-
     return prefsWidget;
+}
+
+function buildColorGrid() {
+    let colorGrid = new Gtk.Grid({
+        margin: 12,
+        column_spacing: 12,
+        row_spacing: 12,
+        visible: true,
+        column_homogeneous: true,
+    });
+
+    /* prev-icon-color */
+    let prevColorLabel = new Gtk.Label({
+        label: 'Previous Icon color:',
+        halign: Gtk.Align.START,
+        visible: true
+    });
+    let prevColorButton = new Gtk.ColorButton({
+        visible: true
+    });
+    prevColorButton.set_color(Gdk.Color.parse(settings.get_string('prev-icon-color'))[1]);
+
+    colorGrid.attach(prevColorLabel, 0, 0, 1, 1);
+    colorGrid.attach(prevColorButton, 1, 0, 1, 1);
+
+    /* next-icon-color */
+    let nextColorLabel = new Gtk.Label({
+        label: 'Next Icon color:',
+        halign: Gtk.Align.START,
+        visible: true
+    });
+    let nextColorButton = new Gtk.ColorButton({
+        visible: true
+    });
+    nextColorButton.set_color(Gdk.Color.parse(settings.get_string('next-icon-color'))[1]);
+
+    colorGrid.attach(nextColorLabel, 0, 1, 1, 1);
+    colorGrid.attach(nextColorButton, 1, 1, 1, 1);
+
+    /* pause-icon-color */
+    let pauseColorLabel = new Gtk.Label({
+        label: 'Pause Icon color:',
+        halign: Gtk.Align.START,
+        visible: true
+    });
+    let pauseColorButton = new Gtk.ColorButton({
+        visible: true
+    });
+    pauseColorButton.set_color(Gdk.Color.parse(settings.get_string('pause-icon-color'))[1]);
+
+    colorGrid.attach(pauseColorLabel, 0, 2, 1, 1);
+    colorGrid.attach(pauseColorButton, 1, 2, 1, 1);
+
+    /* play-icon-color */
+    let playColorLabel = new Gtk.Label({
+        label: 'Play Icon color:',
+        halign: Gtk.Align.START,
+        visible: true
+    });
+    let playColorButton = new Gtk.ColorButton({
+        visible: true
+    });
+    playColorButton.set_color(Gdk.Color.parse(settings.get_string('play-icon-color'))[1]);
+
+    colorGrid.attach(playColorLabel, 0, 3, 1, 1);
+    colorGrid.attach(playColorButton, 1, 3, 1, 1);
+
+
+    prevColorButton.connect('color-set', Lang.bind(this, function(widget) {
+        const color = widget.get_color().to_string();
+        //prevColorLabel.label = `[${parseHex(color)}]`;    // for debug
+        settings.set_string('prev-icon-color', parseHex(color));
+    }));
+
+    nextColorButton.connect('color-set', Lang.bind(this, function(widget) {
+        const color = widget.get_color().to_string();
+        settings.set_string('next-icon-color', parseHex(color));
+    }));
+
+    pauseColorButton.connect('color-set', Lang.bind(this, function(widget) {
+        const color = widget.get_color().to_string();
+        settings.set_string('pause-icon-color', parseHex(color));
+    }));
+
+    playColorButton.connect('color-set', Lang.bind(this, function(widget) {
+        const color = widget.get_color().to_string();
+        settings.set_string('play-icon-color', parseHex(color));
+    }));
+
+
+    return colorGrid;
+}
+
+// parse 12-digit hex (given by Gdk.Color) to 6-digit needed for CSS
+function parseHex(hex = '#000000000000') {
+    // split color into its constituent parts
+    var red = hex.substring(1, 5);
+    var green = hex.substring(5, 9);
+    var blue = hex.substring(9);
+
+    // convert hex strings to ints
+    red = parseInt(red, 16);
+    green = parseInt(green, 16);
+    blue = parseInt(blue, 16);
+
+    // divide by 16^2 to try and 'simulate' 4 digit -> 2 digit
+    red = Math.floor(red / 256);
+    green = Math.floor(green / 256);
+    blue = Math.floor(blue / 256);
+
+    // convert back to hex strings
+    red = red.toString(16);
+    green = green.toString(16);
+    blue = blue.toString(16);
+
+    // 'inflate' single digit hex
+    if (red.length < 2)
+        red = '0' + red;
+    if (green.length < 2)
+        green = '0' + green;
+    if (blue.length < 2)
+        blue = '0' + blue;
+
+    return `#${red}${green}${blue}`;
 }
