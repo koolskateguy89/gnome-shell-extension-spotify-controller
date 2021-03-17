@@ -7,6 +7,7 @@ const Main = imports.ui.main;
 const PanelMenu = imports.ui.panelMenu;
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
+const schemaId = Me.metadata['settings-schema'];
 
 //const settings = ExtensionUtils.getSettings('org.gnome.shell.extensions.spotify-controller');
 const settings = (function() {  // basically copied from ExtensionUtils.getCurrentExtension() in recent Gnome Shell versions
@@ -20,7 +21,7 @@ const settings = (function() {  // basically copied from ExtensionUtils.getCurre
     );
 
     let schemaObj = schemaSource.lookup(
-        'org.gnome.shell.extensions.spotify-controller',
+        schemaId,
         true
     );
 
@@ -303,6 +304,13 @@ class Extension {
 		this.controlBar = new ControlBar();
 		//Main.panel.addToStatusArea('spotifycontrol-control-bar', this.controlBar, lastExtensionIndex, lastExtensionPlace);
 
+		// andy.holmes is THE man - https://stackoverflow.com/a/59959242
+		// poll editing extension location to be able to 'correctly' add to topbar (I have this extension on the left end of the rightBox (0, 'right')
+		//   but some other extensions take that spot due to not specifying index (and probably other things idk) so this allows it to actually be where I want)
+		//   on startup - although it'll probably lose it if you restart the shell)
+		if (lastExtensionIndex == 0)
+			GLib.timeout_add_seconds(GLib.PRIORITY_DEFAULT, 0, this.onExtensionLocationChanged.bind(this, settings));
+
 		this._refresh();
 	}
 
@@ -332,9 +340,7 @@ class Extension {
 
 		if (playing != null) {
 			if (hide) {
-				var insertBox = getPanel(lastExtensionPlace);
-				//debug(`Index: ${-lastExtensionIndex}`);
-				this.controlBar._insertAt(insertBox, lastExtensionIndex);
+				this.onExtensionLocationChanged(settings);
 				hide = false;
 			}
 			if (playing) {
@@ -353,8 +359,7 @@ class Extension {
 			if (newShowInactive !== showInactive) {
 				showInactive = newShowInactive;
 				if (showInactive) {
-					var insertBox = getPanel(lastExtensionPlace);
-					this.controlBar._insertAt(insertBox, lastExtensionIndex);
+					this.onExtensionLocationChanged(settings);
 				} else {
 					var removePanel = getPanel(lastExtensionPlace);
 					this.controlBar._removeFrom(removePanel);
@@ -377,6 +382,7 @@ class Extension {
 
 
 	// Remove from old box & move to new box
+	// USE THIS FOR ADDING TO TOP BAR
 	onExtensionLocationChanged (settings, key) {
 		const newExtensionPlace = settings.get_string('extension-place');
 		const newExtensionIndex = settings.get_int('extension-index');
