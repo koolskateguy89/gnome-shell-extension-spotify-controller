@@ -6,6 +6,10 @@ const Lang = imports.lang;
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 
+const Config = imports.misc.config;
+const [major] = Config.PACKAGE_VERSION.split('.');
+const shellVersion = Number.parseInt(major);
+
 const settings = (function() {  // basically copied from ExtensionUtils.getCurrentExtension() in recent Gnome Shell versions
     const GioSSS = Gio.SettingsSchemaSource;
 
@@ -39,11 +43,16 @@ function init() {
 
 function buildPrefsWidget() {
 
-    let box = new Gtk.Box({
-        orientation: Gtk.Orientation.VERTICAL,
-        border_width: 20,
-        spacing: 1,
-    });
+    let box = shellVersion > 40 ?
+        new Gtk.Box({
+
+        })
+        :
+        new Gtk.Box({
+            orientation: Gtk.Orientation.VERTICAL,
+            border_width: 20,
+            spacing: 1,
+        });
 
     let title = new Gtk.Label({
         label: '<b>' + Me.metadata.name + ' Extension Preferences</b>',
@@ -53,6 +62,7 @@ function buildPrefsWidget() {
     });
     box.add(title);
 
+    // TODO
     let prefsWidget = new Gtk.Grid({
         margin: 18,
         column_spacing: 12,
