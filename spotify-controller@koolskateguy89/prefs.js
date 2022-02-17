@@ -43,16 +43,20 @@ function init() {
 
 function buildPrefsWidget() {
 
-    let box = shellVersion > 40 ?
-        new Gtk.Box({
-
-        })
+    // ~/Projects/Gnome-Extensions/gnome-shell-extension-spotify-controller
+    let box = new Gtk.Box(shellVersion > 40 ?
+        {
+            // TODO: border_width
+            orientation: Gtk.Orientation.VERTICAL,
+            spacing: 1,
+        }
         :
-        new Gtk.Box({
+        {
             orientation: Gtk.Orientation.VERTICAL,
             border_width: 20,
             spacing: 1,
-        });
+        }
+    );
 
     let title = new Gtk.Label({
         label: '<b>' + Me.metadata.name + ' Extension Preferences</b>',
@@ -62,19 +66,28 @@ function buildPrefsWidget() {
     });
     box.add(title);
 
-    // TODO
-    let prefsWidget = new Gtk.Grid({
-        margin: 18,
-        column_spacing: 12,
-        row_spacing: 12,
-        visible: true,
-        column_homogeneous: true,
-    });
+    let prefsWidget = new Gtk.Grid(shellVersion > 40 ?
+        {
+            // TODO: margin
+            column_spacing: 12,
+            row_spacing: 12,
+            visible: true,
+            column_homogeneous: true,
+        }
+        :
+        {
+            margin: 18,
+            column_spacing: 12,
+            row_spacing: 12,
+            visible: true,
+            column_homogeneous: true,
+        }
+    );
     box.add(prefsWidget);
 
     let index = 0;
 
-	/* left-padding */
+    /* left-padding */
     let leftPaddingLabel = new Gtk.Label({
         label: 'Left padding:',
         halign: Gtk.Align.START,
@@ -145,10 +158,10 @@ function buildPrefsWidget() {
         visible: true
     });
 
-	let options = ['left', 'center', 'right'];
+    let options = ['left', 'center', 'right'];
     extensionPlaceComboBox = new Gtk.ComboBoxText({
-    	halign: Gtk.Align.END,
-    	visible: true
+        halign: Gtk.Align.END,
+        visible: true
     });
     options.forEach(opt => extensionPlaceComboBox.append(opt, opt));
     extensionPlaceComboBox.set_active(options.indexOf(settings.get_string('extension-place')));
@@ -206,9 +219,9 @@ function buildPrefsWidget() {
     settings.bind('left-padding', leftPaddingEntry, 'value', Gio.SettingsBindFlags.DEFAULT);
     settings.bind('right-padding', rightPaddingEntry, 'value', Gio.SettingsBindFlags.DEFAULT);
     //settings.bind('update-time', updateTimeEntry, 'value', Gio.SettingsBindFlags.DEFAULT);
-    extensionPlaceComboBox.connect('changed', Lang.bind(this, function(widget) {
+    extensionPlaceComboBox.connect('changed', (widget) => {
         settings.set_string('extension-place', options[widget.get_active()]);
-    }));
+    });
     settings.bind('extension-index', extensionIndexEntry, 'value', Gio.SettingsBindFlags.DEFAULT);
     settings.bind('show-inactive', showInactiveSwitch, 'active', Gio.SettingsBindFlags.DEFAULT);
 
@@ -223,14 +236,23 @@ function buildPrefsWidget() {
 
 function buildColorGrid() {
 
-    let colorGrid = new Gtk.Grid({
-        margin: 12,
-        column_spacing: 12,
-        row_spacing: 12,
-        visible: true,
-        column_homogeneous: true,
-    });
-
+    let colorGrid = new Gtk.Grid(shellVersion > 40 ?
+        {
+            // TODO: margin
+            column_spacing: 12,
+            row_spacing: 12,
+            visible: true,
+            column_homogeneous: true,
+        }
+        :
+        {
+            margin: 12,
+            column_spacing: 12,
+            row_spacing: 12,
+            visible: true,
+            column_homogeneous: true,
+        }
+    );
 
     /* prev-icon-color */
     let prevColorLabel = new Gtk.Label({
