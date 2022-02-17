@@ -1,6 +1,4 @@
-const Gio = imports.gi.Gio;
-const Gtk = imports.gi.Gtk;
-const Gdk = imports.gi.Gdk;
+const { Gio, Gtk, Gdk } = import.gi;
 const Lang = imports.lang;
 
 const ExtensionUtils = imports.misc.extensionUtils;
@@ -9,6 +7,8 @@ const Me = ExtensionUtils.getCurrentExtension();
 const Config = imports.misc.config;
 const [major] = Config.PACKAGE_VERSION.split('.');
 const shellVersion = Number.parseInt(major);
+
+// ~/Projects/Gnome-Extensions/gnome-shell-extension-spotify-controller
 
 const settings = (function() {  // basically copied from ExtensionUtils.getCurrentExtension() in recent Gnome Shell versions
     const GioSSS = Gio.SettingsSchemaSource;
@@ -43,20 +43,24 @@ function init() {
 
 function buildPrefsWidget() {
 
-    // ~/Projects/Gnome-Extensions/gnome-shell-extension-spotify-controller
-    let box = new Gtk.Box(shellVersion > 40 ?
-        {
-            // TODO: border_width
+    let box = new Gtk.Box({
+        ...{
             orientation: Gtk.Orientation.VERTICAL,
             spacing: 1,
-        }
-        :
-        {
-            orientation: Gtk.Orientation.VERTICAL,
-            border_width: 20,
-            spacing: 1,
-        }
-    );
+        },
+        ...(shellVersion >= 40 ?
+            {
+                margin_top: 20,
+                margin_bottom: 20,
+                margin_start: 20,
+                margin_end: 20,
+            }
+            :
+            {
+                border_width: 20,
+            }
+        ),
+    });
 
     let title = new Gtk.Label({
         label: '<b>' + Me.metadata.name + ' Extension Preferences</b>',
@@ -66,23 +70,26 @@ function buildPrefsWidget() {
     });
     box.add(title);
 
-    let prefsWidget = new Gtk.Grid(shellVersion > 40 ?
-        {
-            // TODO: margin
+    let prefsWidget = new Gtk.Grid({
+        ...{
             column_spacing: 12,
             row_spacing: 12,
             visible: true,
             column_homogeneous: true,
-        }
-        :
-        {
-            margin: 18,
-            column_spacing: 12,
-            row_spacing: 12,
-            visible: true,
-            column_homogeneous: true,
-        }
-    );
+        },
+        ...(shellVersion >= 40 ?
+            {
+                margin_top: 18,
+                margin_bottom: 18,
+                margin_start: 18,
+                margin_end: 18,
+            }
+            :
+            {
+                margin: 18,
+            }
+        ),
+    });
     box.add(prefsWidget);
 
     let index = 0;
@@ -236,23 +243,26 @@ function buildPrefsWidget() {
 
 function buildColorGrid() {
 
-    let colorGrid = new Gtk.Grid(shellVersion > 40 ?
-        {
-            // TODO: margin
+    let colorGrid = new Gtk.Grid({
+        ...{
             column_spacing: 12,
             row_spacing: 12,
             visible: true,
             column_homogeneous: true,
-        }
-        :
-        {
-            margin: 12,
-            column_spacing: 12,
-            row_spacing: 12,
-            visible: true,
-            column_homogeneous: true,
-        }
-    );
+        },
+        ...(shellVersion >= 40 ?
+            {
+                margin_top: 12,
+                margin_bottom: 12,
+                margin_start: 12,
+                margin_end: 12,
+            }
+            :
+            {
+                margin: 12,
+            }
+        )
+    });
 
     /* prev-icon-color */
     let prevColorLabel = new Gtk.Label({
@@ -318,26 +328,26 @@ function buildColorGrid() {
     colorGrid.attach(playColorButton, 1, 3, 1, 1);
 
 
-    prevColorButton.connect('color-set', Lang.bind(this, function(widget) {
+    prevColorButton.connect('color-set', (widget) => {
         const color = widget.get_color().to_string();
         prevColorLabel.label = `[${parseHex(color)}]`;    // for debug
         settings.set_string('prev-icon-color', parseHex(color));
-    }));
+    });
 
-    nextColorButton.connect('color-set', Lang.bind(this, function(widget) {
+    nextColorButton.connect('color-set', (widget) => {
         const color = widget.get_color().to_string();
         settings.set_string('next-icon-color', parseHex(color));
-    }));
+    });
 
-    pauseColorButton.connect('color-set', Lang.bind(this, function(widget) {
+    pauseColorButton.connect('color-set', (widget) => {
         const color = widget.get_color().to_string();
         settings.set_string('pause-icon-color', parseHex(color));
-    }));
+    });
 
-    playColorButton.connect('color-set', Lang.bind(this, function(widget) {
+    playColorButton.connect('color-set', (widget) => {
         const color = widget.get_color().to_string();
         settings.set_string('play-icon-color', parseHex(color));
-    }));
+    });
 
 
     return colorGrid;
@@ -385,7 +395,7 @@ function buildDefaultButton() {
         label: "Reset to default",
     });
 
-    button.connect('clicked', function() {
+    button.connect('clicked', () => {
         settings.set_int('left-padding', 0);
         settings.set_int('right-padding', 0);
 
