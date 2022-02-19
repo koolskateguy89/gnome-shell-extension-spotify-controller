@@ -269,22 +269,10 @@ class Extension {
 
         this.controlBar = new ControlBar();
 
-        // big up andy.holmes - https://stackoverflow.com/a/59959242
-        // poll editing extension location to be able to 'correctly' add to topbar (I have this extension on the left end of the rightBox (0, 'right')
-        //   but some other extensions take that spot due to not specifying index (and probably other things idk) so this allows it to actually be where I want)
-        //   on startup - although it'll probably lose it if you restart the shell)
-        if (lastExtensionIndex == 0)
-            GLib.timeout_add_seconds(GLib.PRIORITY_DEFAULT, 0, () => {
-                this.onExtensionLocationChanged(settings);
-                return GLib.SOURCE_REMOVE;
-            });
-
-
         this._timeout = GLib.timeout_add_seconds(GLib.PRIORITY_DEFAULT, 1, () => {
             this._refresh();
             return GLib.SOURCE_CONTINUE;
         });
-
         //this._refresh();
     }
 
