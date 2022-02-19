@@ -18,11 +18,11 @@ Use this GNOME Shell extension to skip, toggle playback and restart/backtrack th
 
 ![Error mi amigo!](res/example.png "Extension on far right!")
 
-\* I have customised my installation of the Spotify Label extension, see issue [#1](https://github.com/koolskateguy89/gnome-shell-extension-spotify-controller/issues/1) for more info
+\* I have customised my installation of the Spotify Label extension, see issue [#1](https://github.com/koolskateguy89/gnome-shell-extension-spotify-controller/issues/1) for more info (doesn't work on gnome 40+)
 
 ## Installation
 
-The easiest way to install this is through the [GNOME Extension website](https://extensions.gnome.org/extension/4013/spotify-controller/), but here's how to manually install this extension:
+The easiest way to install is through the [GNOME Extension website](https://extensions.gnome.org/extension/4013/spotify-controller/), but you can manually install it (commands):
 
 - **Clone the repo**
 
@@ -46,14 +46,14 @@ The easiest way to install this is through the [GNOME Extension website](https:/
 
 - **Enable the extension**
 
-  `gnome-shell-extension-prefs` (deprecated but works for now) then enable 'Spotify Controller'
+  `gnome-extensions enable spotify-controller@koolskateguy89`
 
 If you copied the extension, you can delete the repo folder (`cd .. && rm -r gnome-shell-extension-spotify-controller`)
 
 ## Prerequisites
 
 The only thing you 'need' is `dbus-send` but I think it comes with GNOME Shell/Linux. To check you have it, simply run the command
-```
+```sh
 command -v dbus-send
 ```
 You should see a path pointing to the executable file for `dbus-send` (for me it's `/usr/bin/dbus-send`).
