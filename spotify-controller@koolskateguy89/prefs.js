@@ -188,7 +188,7 @@ function buildPrefsWidget() {
     prefsWidget.attach(showInactiveSwitch, 1, index, 1, 1);
 
 
-    /* *-icon-color */
+    /* icon-color */
     let colorGrid = buildColorGrid();
     index++;
     prefsWidget.attach(colorGrid, 0, index, 1, 1);
@@ -304,6 +304,8 @@ function buildColorGrid() {
         const color = widget.get_rgba().to_string();
         settings.set_string('play-icon-color', color);
     });
+
+    // TODO: toggle to pick same colour for all
 
 
     return colorGrid;
