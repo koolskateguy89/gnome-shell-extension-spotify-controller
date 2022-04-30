@@ -22,7 +22,7 @@ String.prototype.toRgba = function() {
 
 let extensionPlaceComboBox;
 
-let prevColorButton, nextColorButton, pauseColorButton, playColorButton;
+let prevColorButton, nextColorButton, pauseColorButton, playColorButton, sameColorsSwitch;
 
 function init() {
 }
@@ -188,10 +188,10 @@ function buildPrefsWidget() {
     prefsWidget.attach(showInactiveSwitch, 1, index, 1, 1);
 
 
-    /* *-icon-color */
+    /* icon-color */
     let colorGrid = buildColorGrid();
     index++;
-    prefsWidget.attach(colorGrid, 0, index, 1, 1);
+    prefsWidget.attach(colorGrid, 0, index, 2, 1);
 
 
     settings.bind('left-padding', leftPaddingEntry, 'value', Gio.SettingsBindFlags.DEFAULT);
@@ -286,23 +286,45 @@ function buildColorGrid() {
 
     prevColorButton.connect('color-set', (widget) => {
         const color = widget.get_rgba().to_string();
-        // prevColorLabel.label = `[${color}]`;    // for debugging
+        // prevColorLabel.label = `prev=[${color}]`;    // debug
         settings.set_string('prev-icon-color', color);
     });
 
     nextColorButton.connect('color-set', (widget) => {
         const color = widget.get_rgba().to_string();
+        // nextColorLabel.label = `next=[${color}]`;    // debug
         settings.set_string('next-icon-color', color);
     });
 
     pauseColorButton.connect('color-set', (widget) => {
         const color = widget.get_rgba().to_string();
+        // pauseColorLabel.label = `pause=[${color}]`;    // debug
         settings.set_string('pause-icon-color', color);
     });
 
     playColorButton.connect('color-set', (widget) => {
         const color = widget.get_rgba().to_string();
+        // playColorLabel.label = `play=[${color}]`;    // debug
         settings.set_string('play-icon-color', color);
+    });
+
+
+    /* same-color-buttons */
+    let sameColorsLabel = new Gtk.Label({
+        label: 'Same Icon colors (uses previous icon color):',
+        halign: Gtk.Align.START,
+    });
+
+    sameColorsSwitch = new Gtk.Switch({
+        halign: Gtk.Align.START,
+    });
+    sameColorsSwitch.set_active(settings.get_boolean('same-color-buttons'));
+
+    colorGrid.attach(sameColorsLabel, 0, 4, 1, 1);
+    colorGrid.attach(sameColorsSwitch, 1, 4, 1, 1);
+
+    sameColorsSwitch.connect('state-set', (widget) => {
+        settings.set_boolean('same-color-buttons', widget.get_active());
     });
 
 
@@ -315,13 +337,14 @@ function buildDefaultButton() {
     });
 
     button.connect('clicked', () => {
-        settings.set_int('left-padding', 0);
-        settings.set_int('right-padding', 0);
+        settings.reset('left-padding');
+        settings.reset('right-padding');
 
-        extensionPlaceComboBox.set_active(1);   // center
-        settings.set_int('extension-index', 0);
+        settings.reset('extension-index');
+        let options = ['left', 'center', 'right'];
+        extensionPlaceComboBox.set_active(options.indexOf(settings.get_string('extension-place')));
 
-        settings.set_boolean('show-inactive', false);
+        settings.reset('show-inactive');
 
         const white = 'white'.toRgba();
 
@@ -337,6 +360,9 @@ function buildDefaultButton() {
             btn.set_rgba(white);
             btn.emit('color-set');
         }
+
+        settings.reset('same-color-buttons');
+        sameColorsSwitch.set_active(settings.get_boolean('same-color-buttons'));
     });
 
     return button;

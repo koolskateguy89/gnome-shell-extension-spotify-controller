@@ -4,10 +4,12 @@
   "shell-version": [
     "3.36",
     "3.38",
-    "40"
+    "40",
+    "41",
+    "42"
   ],
   "settings-schema": "org.gnome.shell.extensions.spotify-controller",
   "url": "https://github.com/koolskateguy89/gnome-shell-extension-spotify-controller",
   "uuid": "spotify-controller@koolskateguy89",
-  "version": 8
+  "version": 9
 }
