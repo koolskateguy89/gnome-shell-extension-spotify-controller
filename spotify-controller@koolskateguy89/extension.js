@@ -16,6 +16,7 @@ let onLeftPaddingChanged, onRightPaddingChanged;
 let onExtensionPlaceChanged, onExtensionIndexChanged;
 let onPrevIconColorChanged, onNextIconColorChanged;
 let onPauseIconColorChanged, onPlayIconColorChanged;
+let onSameColorButtonsChanged;
 // wow these variables have long names
 
 const base = 'dbus-send --print-reply --dest=org.mpris.MediaPlayer2.spotify /org/mpris/MediaPlayer2';
@@ -57,7 +58,7 @@ function getStatus() {
 
     } catch (err1) {
         // most likely Spotify not open i think
-        global.log('spotify-controller error[getStatus]: ' + err1);
+        logError(err1, 'getStatus');
     }
 }
 
@@ -75,10 +76,20 @@ const previousSong = run.bind(null, prevCmd);
 const toggle = run.bind(null, toggleCmd);
 
 function styleStr(direction, iconType) {
-    return `
-        padding-${direction}: ${settings.get_int(direction + "-padding")}px;
-        color: ${settings.get_string(iconType + "-icon-color")};
-        `;
+    let style;
+    if (iconType) {
+        style = `padding-${direction}: ${settings.get_int(direction + "-padding")}px;`
+    } else {
+        // called by toggle
+        style = '';
+        iconType = direction;
+    }
+
+    const useSameColors = settings.get_boolean('same-color-buttons');
+    iconType = useSameColors ? 'prev' : iconType;
+    style += `color: ${settings.get_string(iconType + "-icon-color")};`
+
+    return style;
 }
 
 const Previous = GObject.registerClass(
@@ -101,7 +112,7 @@ class Previous extends St.Icon {
 
         onPrevIconColorChanged = settings.connect(
             'changed::prev-icon-color',
-            this._styleChanged.bind(this)
+            controlBar._sameColorButtonsChanged.bind(controlBar)
         );
 
         this.connect('button-press-event', () => {
@@ -149,6 +160,7 @@ class Next extends St.Icon {
     }
 
     _styleChanged() {
+
         this.set_style(styleStr('right', 'next'));
     }
 });
@@ -162,7 +174,7 @@ class Toggle extends St.Icon {
             reactive: true,
             icon_name: play,
             style_class: 'system-status-icon',
-            style: 'color: ' + settings.get_string('play-icon-color'),
+            style: styleStr('play'),
         });
 
         onPauseIconColorChanged = settings.connect(
@@ -189,7 +201,7 @@ class Toggle extends St.Icon {
 
     _styleChanged() {
         const current = this.icon_name === play ? 'play' : 'pause';
-        this.set_style('color: ' + settings.get_string(`${current}-icon-color`));
+        this.set_style(styleStr(current));
     }
 
     _pauseIcon() {
@@ -214,16 +226,29 @@ class ControlBar extends PanelMenu.Button {
 
         this.toggle = new Toggle();
 
+        this.buttons = [
+            this.previous,
+            this.toggle,
+            this.next,
+        ];
+
+        onSameColorButtonsChanged = settings.connect(
+            'changed::same-color-buttons',
+            this._sameColorButtonsChanged.bind(this)
+        );
+
         this.bar = new St.BoxLayout();
 
-        this.bar.add_child(this.previous);
-        this.bar.add_child(this.toggle);
-        this.bar.add_child(this.next);
+        this.buttons.forEach(btn => this.bar.add_child(btn));
 
         if ((typeof this.add_child) === 'function')
             this.add_child(this.bar);
         else
             this.actor.add_actor(this.bar);
+    }
+
+    _sameColorButtonsChanged() {
+        this.buttons.forEach(btn => btn._styleChanged());
     }
 
     _insertAt(box, index) {
@@ -286,6 +311,7 @@ class Extension {
         settings.disconnect(onNextIconColorChanged);
         settings.disconnect(onPauseIconColorChanged);
         settings.disconnect(onPlayIconColorChanged);
+        settings.disconnect(onSameColorButtonsChanged);
 
         settings = null;
 
