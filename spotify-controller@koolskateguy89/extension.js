@@ -351,10 +351,12 @@ class Extension {
                 showInactive = newShowInactive;
                 if (showInactive) {
                     this.onExtensionLocationChanged(settings);
-                } else {
-                    let removePanel = getPanel(lastExtensionPlace);
-                    this.controlBar._removeFrom(removePanel);
                 }
+            }
+
+            if (!showInactive) {
+                let removePanel = getPanel(lastExtensionPlace);
+                this.controlBar._removeFrom(removePanel);
             }
         }
 
