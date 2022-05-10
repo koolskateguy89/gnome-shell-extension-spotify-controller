@@ -20,6 +20,13 @@ clear && journalctl -o cat -f /usr/bin/gjs
 journalctl /usr/bin/gjs | grep 'spotify-controller@koolskateguy89'
 ```
 
+## schemas
+
+```sh
+glib-compile-schemas schemas/
+```
+
+
 # Me TODO
 
 ## Dbus session
