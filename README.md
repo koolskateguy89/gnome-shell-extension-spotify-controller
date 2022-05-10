@@ -22,7 +22,11 @@ Use this GNOME Shell extension to skip, toggle playback and restart/backtrack th
 
 ## Installation
 
-The easiest way to install is through the [GNOME Extension website](https://extensions.gnome.org/extension/4013/spotify-controller/), but you can manually install it (commands):
+The easiest way to install is by:
+
+[<img src="https://raw.githubusercontent.com/andyholmes/gnome-shell-extensions-badge/master/get-it-on-ego.svg?sanitize=true" alt="Get it on GNOME Extensions" height="100" align="middle">][https://extensions.gnome.org/extension/4013/spotify-controller/]
+
+but you can manually install it (commands):
 
 - **Clone the repo**
 
