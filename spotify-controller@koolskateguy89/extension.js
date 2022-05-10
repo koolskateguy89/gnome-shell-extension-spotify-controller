@@ -1,4 +1,4 @@
-const { GLib, GObject, St } = imports.gi;
+const { Gio, GLib, GObject, St } = imports.gi;
 
 const ByteArray = imports.byteArray;
 const Main = imports.ui.main;
@@ -12,12 +12,7 @@ let showInactive;
 let hide = true; // synonymous to spotifyIsClosed
 
 // signals
-let onLeftPaddingChanged, onRightPaddingChanged;
-let onExtensionPlaceChanged, onExtensionIndexChanged;
-let onPrevIconColorChanged, onNextIconColorChanged;
-let onPauseIconColorChanged, onPlayIconColorChanged;
-let onSameColorButtonsChanged;
-// wow these variables have long names
+let settingsSignals;
 
 const base = 'dbus-send --print-reply --dest=org.mpris.MediaPlayer2.spotify /org/mpris/MediaPlayer2';
 const actionBase = base + ' org.mpris.MediaPlayer2.Player.';
@@ -41,39 +36,51 @@ let extension;
 let settings;
 
 
-function getStatus() {
-    try {
-        // Use GLib to send a dbus request with the expectation of receiving an MPRIS v2 response.
-        let [res, out, err, exitStatus] = GLib.spawn_command_line_sync(statusCmd);
+// thanks esenliyim - https://github.com/esenliyim/sp-tray/blob/master/panelButton.js
+// https://wiki.gnome.org/Gjs/Examples/DBusClient
+// https://www.andyholmes.ca/articles/dbus-in-gjs.html#high-level-interfaces
+// dbus constants
+const dest = 'org.mpris.MediaPlayer2.spotify';
+const path = '/org/mpris/MediaPlayer2';
+const playerInterface = `
+<node>
+<interface name="org.mpris.MediaPlayer2.Player">
+    <property name="PlaybackStatus" type="s" access="read" />
+    <method name="Next" />
+    <method name="Previous" />
+    <method name="PlayPause" />
+</interface>
+</node>
+`;
 
-        out = ByteArray.toString(out).split("string ");
+// Declare the proxy class based on the interface
+const SpotifyProxy = Gio.DBusProxy.makeProxyWrapper(playerInterface);
 
-        if (!out[1]) // Spotify isn't open
-            return;
+let spotifyProxy;
 
-        out = out[1];
-        const secondSpMark = out.indexOf('"', 1);
+function setupSpotifyProxy() {
+    if (spotifyProxy)
+        return;
 
-        return out.substring(1, secondSpMark);
+    // Get the MediaPlayer instance from the bus
+    spotifyProxy = SpotifyProxy(Gio.DBus.session, dest, path);
 
-    } catch (err1) {
-        // most likely Spotify not open i think
-        logError(err1, 'getStatus');
-    }
+    spotifyProxy.isSpotifyOpen = function() {
+        return this.PlaybackStatus != null;
+    };
+
+    spotifyProxy.isPlaying = function() {
+        return this.isSpotifyOpen() && this.PlaybackStatus === 'Playing';
+    };
+
+    // hide impl
+    spotifyProxy.next = spotifyProxy.NextSync;
+
+    spotifyProxy.previous = spotifyProxy.PreviousSync;
+
+    spotifyProxy.playPause = spotifyProxy.PlayPauseSync;
 }
 
-function isPlaying() {
-    const status = getStatus();
-    if (status)
-        return (status === "Playing");
-
-    // if we get here, most likely Spotify isn't open
-}
-
-const run = GLib.spawn_command_line_async;
-const nextSong = run.bind(null, nextCmd);
-const previousSong = run.bind(null, prevCmd);
-const toggle = run.bind(null, toggleCmd);
 
 function styleStr(direction, iconType) {
     let style;
@@ -105,20 +112,19 @@ class Previous extends St.Icon {
         });
 
         // Listen for update of left padding in settings
-        onLeftPaddingChanged = settings.connect(
+        settingsSignals.push(settings.connect(
             'changed::left-padding',
             this._styleChanged.bind(this)
-        );
+        ));
 
-        onPrevIconColorChanged = settings.connect(
+        settingsSignals.push(settings.connect(
             'changed::prev-icon-color',
             controlBar._sameColorButtonsChanged.bind(controlBar)
-        );
+        ));
 
         this.connect('button-press-event', () => {
             if (!hide) {
-                previousSong();
-                controlBar.toggle._pauseIcon();
+                spotifyProxy.previous();
             }
         });
     }
@@ -130,7 +136,7 @@ class Previous extends St.Icon {
 
 const Next = GObject.registerClass(
 class Next extends St.Icon {
-    _init(controlBar) {
+    _init() {
         super._init({
             track_hover: true,
             can_focus: true,
@@ -141,20 +147,19 @@ class Next extends St.Icon {
         });
 
         // Listen for update of right padding in settings
-        onRightPaddingChanged = settings.connect(
+        settingsSignals.push(settings.connect(
             'changed::right-padding',
             this._styleChanged.bind(this)
-        );
+        ));
 
-        onNextIconColorChanged = settings.connect(
+        settingsSignals.push(settings.connect(
             'changed::next-icon-color',
             this._styleChanged.bind(this)
-        );
+        ));
 
         this.connect('button-press-event', () => {
             if (!hide) {
-                nextSong();
-                controlBar.toggle._pauseIcon();
+                spotifyProxy.next();
             }
         });
     }
@@ -177,24 +182,19 @@ class Toggle extends St.Icon {
             style: styleStr('play'),
         });
 
-        onPauseIconColorChanged = settings.connect(
+        settingsSignals.push(settings.connect(
             'changed::pause-icon-color',
             this._styleChanged.bind(this)
-        );
+        ));
 
-        onPlayIconColorChanged = settings.connect(
+        settingsSignals.push(settings.connect(
             'changed::play-icon-color',
             this._styleChanged.bind(this)
-        );
+        ));
 
         this.connect('button-press-event', () => {
             if (!hide) {
-                toggle();
-                if (this.icon_name === play) {
-                    this._pauseIcon();
-                } else {
-                    this._playIcon();
-                }
+                spotifyProxy.playPause();
             }
         });
     }
@@ -222,7 +222,7 @@ class ControlBar extends PanelMenu.Button {
 
         this.previous = new Previous(this);
 
-        this.next = new Next(this);
+        this.next = new Next();
 
         this.toggle = new Toggle();
 
@@ -232,10 +232,10 @@ class ControlBar extends PanelMenu.Button {
             this.next,
         ];
 
-        onSameColorButtonsChanged = settings.connect(
+        settingsSignals.push(settings.connect(
             'changed::same-color-buttons',
             this._sameColorButtonsChanged.bind(this)
-        );
+        ));
 
         this.bar = new St.BoxLayout();
 
@@ -277,70 +277,63 @@ class Extension {
     }
 
     enable() {
+        this._initSettings();
+
+        this.controlBar = new ControlBar();
+
+        setupSpotifyProxy();
+        settingsSignals.push(spotifyProxy.connect(
+            "g-properties-changed",
+            this._refresh.bind(this)
+        ));
+        this._refresh();
+    }
+
+    _initSettings() {
         settings = ExtensionUtils.getSettings();
+        settingsSignals = [];
 
         lastExtensionPlace = settings.get_string('extension-place');
         lastExtensionIndex = settings.get_int('extension-index');
 
-        onExtensionPlaceChanged = settings.connect(
+        settingsSignals.push(settings.connect(
             'changed::extension-place',
             this.onExtensionLocationChanged.bind(this)
-        );
+        ));
 
-        onExtensionIndexChanged = settings.connect(
+        settingsSignals.push(settings.connect(
             'changed::extension-index',
             this.onExtensionLocationChanged.bind(this)
-        );
+        ));
 
-        this.controlBar = new ControlBar();
-
-        this._timeout = GLib.timeout_add_seconds(GLib.PRIORITY_DEFAULT, 1, () => {
-            this._refresh();
-            return GLib.SOURCE_CONTINUE;
-        });
-        //this._refresh();
+        settingsSignals.push(settings.connect(
+            'changed::show-inactive',
+            this._refresh.bind(this)
+        ));
     }
 
     disable() {
-        settings.disconnect(onLeftPaddingChanged);
-        settings.disconnect(onRightPaddingChanged);
-        settings.disconnect(onExtensionPlaceChanged);
-        settings.disconnect(onExtensionIndexChanged);
+        settingsSignals.forEach((signal) => settings.disconnect(signal));
+        settingsSignals = null;
 
-        settings.disconnect(onPrevIconColorChanged);
-        settings.disconnect(onNextIconColorChanged);
-        settings.disconnect(onPauseIconColorChanged);
-        settings.disconnect(onPlayIconColorChanged);
-        settings.disconnect(onSameColorButtonsChanged);
+        spotifyProxy = null;
 
         settings = null;
 
         this.controlBar.destroy();
         hide = true;
-
-        this._removeTimeout();
-    }
-
-    _removeTimeout() {
-        if (this._timeout) {
-            GLib.Source.remove(this._timeout);
-            this._timeout = null;
-        }
     }
 
     _refresh() {
-        let playing = isPlaying();
-
-        if (playing != null) {
+        if (spotifyProxy.isSpotifyOpen()) {
             if (hide) {
+                // first time extension shows
                 hide = false;
                 this.onExtensionLocationChanged(settings);
             }
 
-            this.controlBar.toggle[playing ? '_pauseIcon' : '_playIcon']();
+            this.controlBar.toggle[spotifyProxy.isPlaying() ? '_pauseIcon' : '_playIcon']();
         } else {
-            // spotify isn't open
-
             hide = true;
 
             this.controlBar.toggle._playIcon();
@@ -359,13 +352,6 @@ class Extension {
                 this.controlBar._removeFrom(removePanel);
             }
         }
-
-        /* allows any update-time: */
-
-        // this._removeTimeout();
-        // // settings.get_double('update-time')
-        // this._timeout = GLib.timeout_add_seconds(GLib.PRIORITY_DEFAULT, 1, this._refresh.bind(this));
-        // return GLib.SOURCE_CONTINUE;
     }
 
     // Remove from old box & move to new box
