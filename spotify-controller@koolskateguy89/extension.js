@@ -1,6 +1,5 @@
-const { Gio, GLib, GObject, St } = imports.gi;
+const { Gio, GObject, St } = imports.gi;
 
-const ByteArray = imports.byteArray;
 const Main = imports.ui.main;
 const PanelMenu = imports.ui.panelMenu;
 
@@ -14,25 +13,11 @@ let hide = true; // synonymous to spotifyIsClosed
 // signals
 let settingsSignals;
 
-const base = 'dbus-send --print-reply --dest=org.mpris.MediaPlayer2.spotify /org/mpris/MediaPlayer2';
-const actionBase = base + ' org.mpris.MediaPlayer2.Player.';
-
-// short status
-//dbus-send --print-reply --dest=org.mpris.MediaPlayer2.spotify /org/mpris/MediaPlayer2 org.freedesktop.DBus.Properties.Get string:'org.mpris.MediaPlayer2.Player' string:'PlaybackStatus'|egrep -A 1 \"string\"|cut -b 26-|cut -d '\"' -f 1|egrep -v ^$
-
-//dbus-send --print-reply --dest=org.mpris.MediaPlayer2.spotify /org/mpris/MediaPlayer2 org.freedesktop.DBus.Properties.Get string:'org.mpris.MediaPlayer2.Player' string:'PlaybackStatus'
-const statusCmd = base + " org.freedesktop.DBus.Properties.Get string:'org.mpris.MediaPlayer2.Player' string:'PlaybackStatus'";
-
-const toggleCmd = actionBase + 'PlayPause';
-const nextCmd   = actionBase + 'Next';
-const prevCmd   = actionBase + 'Previous';
-
 const backward  = 'media-skip-backward-symbolic';
 const forward   = 'media-skip-forward-symbolic';
 const play      = 'media-playback-start-symbolic';
 const pause     = 'media-playback-pause-symbolic';
 
-let extension;
 let settings;
 
 
@@ -57,6 +42,7 @@ const playerInterface = `
 const SpotifyProxy = Gio.DBusProxy.makeProxyWrapper(playerInterface);
 
 let spotifyProxy;
+let spotifyProxySignals;
 
 function setupSpotifyProxy() {
     if (spotifyProxy)
@@ -64,6 +50,7 @@ function setupSpotifyProxy() {
 
     // Get the MediaPlayer instance from the bus
     spotifyProxy = SpotifyProxy(Gio.DBus.session, dest, path);
+    spotifyProxySignals = [];
 
     spotifyProxy.isSpotifyOpen = function() {
         return this.PlaybackStatus != null;
@@ -260,9 +247,6 @@ class ControlBar extends PanelMenu.Button {
     }
 
     destroy() {
-        if (this.toggle._timeout)
-            this.toggle._removeTimeout();
-
         this.previous.destroy();
         this.next.destroy();
         this.toggle.destroy();
@@ -282,7 +266,7 @@ class Extension {
         this.controlBar = new ControlBar();
 
         setupSpotifyProxy();
-        settingsSignals.push(spotifyProxy.connect(
+        spotifyProxySignals.push(spotifyProxy.connect(
             "g-properties-changed",
             this._refresh.bind(this)
         ));
@@ -316,9 +300,12 @@ class Extension {
         settingsSignals.forEach((signal) => settings.disconnect(signal));
         settingsSignals = null;
 
-        spotifyProxy = null;
-
         settings = null;
+
+        spotifyProxySignals.forEach((signal) => spotifyProxy.disconnect(signal));
+        spotifyProxySignals = null;
+
+        spotifyProxy = null;
 
         this.controlBar.destroy();
         hide = true;
