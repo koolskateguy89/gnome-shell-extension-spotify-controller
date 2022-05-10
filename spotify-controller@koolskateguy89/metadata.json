@@ -3,10 +3,7 @@
   "description": "Control Spotify from the topbar!\n\nCredit to Marcus Heine (https://github.com/mheine) for most of the code in this extension.",
   "shell-version": [
     "3.36",
-    "3.38",
-    "40",
-    "41",
-    "42"
+    "3.38"
   ],
   "settings-schema": "org.gnome.shell.extensions.spotify-controller",
   "url": "https://github.com/koolskateguy89/gnome-shell-extension-spotify-controller",
