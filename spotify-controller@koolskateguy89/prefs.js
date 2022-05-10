@@ -318,15 +318,10 @@ function buildColorGrid() {
     sameColorsSwitch = new Gtk.Switch({
         halign: Gtk.Align.START,
     });
-    sameColorsSwitch.set_active(settings.get_boolean('same-color-buttons'));
+    settings.bind('same-color-buttons', sameColorsSwitch, 'active', Gio.SettingsBindFlags.DEFAULT);
 
     colorGrid.attach(sameColorsLabel, 0, 4, 1, 1);
     colorGrid.attach(sameColorsSwitch, 1, 4, 1, 1);
-
-    sameColorsSwitch.connect('state-set', (widget) => {
-        settings.set_boolean('same-color-buttons', widget.get_active());
-    });
-
 
     return colorGrid;
 }
@@ -356,13 +351,11 @@ function buildDefaultButton() {
         ];
 
         for (const btn of colorBtns) {
-            log("btn");
             btn.set_rgba(white);
             btn.emit('color-set');
         }
 
         settings.reset('same-color-buttons');
-        sameColorsSwitch.set_active(settings.get_boolean('same-color-buttons'));
     });
 
     return button;
