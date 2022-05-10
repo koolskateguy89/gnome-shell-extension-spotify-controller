@@ -10,12 +10,6 @@
       <default>5</default>
     </key>
 
-    <!-- change to refresh-rate?
-    <key name="update-time" type="d">
-      <default>0.8</default>
-    </key>
-    -->
-
     <key name="extension-place" type="s">
       <default>'center'</default>
     </key>
@@ -27,7 +21,6 @@
     <key name="show-inactive" type="b">
       <default>false</default>
     </key>
-
 
     <key name="prev-icon-color" type="s">
       <default>'white'</default>

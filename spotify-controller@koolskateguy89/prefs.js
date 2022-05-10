@@ -87,7 +87,7 @@ function buildPrefsWidget() {
         adjustment: new Gtk.Adjustment({
             lower: 0,
             upper: 200,
-            step_increment: 1
+            step_increment: 1,
         }),
     });
 
@@ -105,34 +105,13 @@ function buildPrefsWidget() {
         adjustment: new Gtk.Adjustment({
             lower: 0,
             upper: 200,
-            step_increment: 1
+            step_increment: 1,
         }),
     });
 
     index++;
     prefsWidget.attach(rightPaddingLabel, 0, index, 1, 1);
     prefsWidget.attach(rightPaddingEntry, 1, index, 1, 1);
-
-
-    // TODO: fix update time?
-    /* update-time */
-    /*let updateTimeLabel = new Gtk.Label({
-        label: 'Check Spotify settings every: (seconds)',
-        halign: Gtk.Align.START,
-    });
-
-    let updateTimeEntry = new Gtk.SpinButton({
-        adjustment: new Gtk.Adjustment({
-            lower: 1,
-            upper: 60,
-            step_increment: 1
-        }),
-    });
-
-    index++;
-    prefsWidget.attach(updateTimeLabel, 0, index, 1, 1);
-    prefsWidget.attach(updateTimeEntry, 1, index, 1, 1);
-    */
 
 
     /* extension-place */
