@@ -1,14 +1,19 @@
+// GNOME APIs are under the `gi` namespace (except Cairo)
+// See: https://gjs-docs.gnome.org/
 const { Gio, GObject, St } = imports.gi;
 
+// GNOME Shell imports
 const Main = imports.ui.main;
 const PanelMenu = imports.ui.panelMenu;
-
 const ExtensionUtils = imports.misc.extensionUtils;
+const Me = ExtensionUtils.getCurrentExtension();
+
+const { MediaPlayer } = Me.imports.mediaPlayer;
 
 // helper variables
 let lastExtensionPlace, lastExtensionIndex;
 let showInactive;
-let hide = true; // synonymous to spotifyIsClosed
+let hide = true;
 
 // signals
 let settingsSignals;
@@ -21,58 +26,10 @@ const pause     = 'media-playback-pause-symbolic';
 let settings;
 
 
-// thanks esenliyim - https://github.com/esenliyim/sp-tray/blob/master/panelButton.js
-// https://wiki.gnome.org/Gjs/Examples/DBusClient
-// https://www.andyholmes.ca/articles/dbus-in-gjs.html#high-level-interfaces
-// dbus constants
-const dest = 'org.mpris.MediaPlayer2.spotify';
-const path = '/org/mpris/MediaPlayer2';
-const playerInterface = `
-<node>
-<interface name="org.mpris.MediaPlayer2.Player">
-    <property name="PlaybackStatus" type="s" access="read" />
-    <method name="Next" />
-    <method name="Previous" />
-    <method name="PlayPause" />
-</interface>
-</node>
-`;
-
-// Declare the proxy class based on the interface
-const SpotifyProxy = Gio.DBusProxy.makeProxyWrapper(playerInterface);
-
-let spotifyProxy;
-let spotifyProxySignals;
-
-function setupSpotifyProxy() {
-    if (spotifyProxy)
-        return;
-
-    // Get the MediaPlayer instance from the bus
-    spotifyProxy = SpotifyProxy(Gio.DBus.session, dest, path);
-    spotifyProxySignals = [];
-
-    spotifyProxy.isSpotifyOpen = function() {
-        return this.PlaybackStatus != null;
-    };
-
-    spotifyProxy.isPlaying = function() {
-        return this.isSpotifyOpen() && this.PlaybackStatus === 'Playing';
-    };
-
-    // hide impl
-    spotifyProxy.next = spotifyProxy.NextSync;
-
-    spotifyProxy.previous = spotifyProxy.PreviousSync;
-
-    spotifyProxy.playPause = spotifyProxy.PlayPauseSync;
-}
-
-
 function styleStr(direction, iconType) {
     let style;
     if (iconType) {
-        style = `padding-${direction}: ${settings.get_int(direction + "-padding")}px;`
+        style = `padding-${direction}: ${settings.get_int(`${direction}-padding`)}px;`
     } else {
         // called by toggle
         style = '';
@@ -81,14 +38,14 @@ function styleStr(direction, iconType) {
 
     const useSameColors = settings.get_boolean('same-color-buttons');
     iconType = useSameColors ? 'prev' : iconType;
-    style += `color: ${settings.get_string(iconType + "-icon-color")};`
+    style += `color: ${settings.get_string(`${iconType}-icon-color`)};`
 
     return style;
 }
 
 const Previous = GObject.registerClass(
 class Previous extends St.Icon {
-    _init(controlBar) {
+    _init(spotify, controlBar) {
         super._init({
             track_hover: true,
             can_focus: true,
@@ -111,7 +68,7 @@ class Previous extends St.Icon {
 
         this.connect('button-press-event', () => {
             if (!hide) {
-                spotifyProxy.previous();
+                spotify.previous();
             }
         });
     }
@@ -123,7 +80,7 @@ class Previous extends St.Icon {
 
 const Next = GObject.registerClass(
 class Next extends St.Icon {
-    _init() {
+    _init(spotify) {
         super._init({
             track_hover: true,
             can_focus: true,
@@ -146,7 +103,7 @@ class Next extends St.Icon {
 
         this.connect('button-press-event', () => {
             if (!hide) {
-                spotifyProxy.next();
+                spotify.next();
             }
         });
     }
@@ -159,7 +116,7 @@ class Next extends St.Icon {
 
 const Toggle = GObject.registerClass(
 class Toggle extends St.Icon {
-    _init() {
+    _init(spotify) {
         super._init({
             track_hover: true,
             can_focus: true,
@@ -181,7 +138,7 @@ class Toggle extends St.Icon {
 
         this.connect('button-press-event', () => {
             if (!hide) {
-                spotifyProxy.playPause();
+                spotify.playPause();
             }
         });
     }
@@ -204,14 +161,14 @@ class Toggle extends St.Icon {
 
 const ControlBar = GObject.registerClass(
 class ControlBar extends PanelMenu.Button {
-    _init() {
+    _init(spotify) {
         super._init();
 
-        this.previous = new Previous(this);
+        this.previous = new Previous(spotify, this);
 
-        this.next = new Next();
+        this.next = new Next(spotify);
 
-        this.toggle = new Toggle();
+        this.toggle = new Toggle(spotify);
 
         this.buttons = [
             this.previous,
@@ -263,13 +220,12 @@ class Extension {
     enable() {
         this._initSettings();
 
-        this.controlBar = new ControlBar();
+        const refresh = this._refresh.bind(this);
+        this.spotify = new MediaPlayer(refresh, refresh, refresh);
+        this.spotify.setupProxy();
 
-        setupSpotifyProxy();
-        spotifyProxySignals.push(spotifyProxy.connect(
-            "g-properties-changed",
-            this._refresh.bind(this)
-        ));
+        this.controlBar = new ControlBar(this.spotify);
+
         this._refresh();
     }
 
@@ -302,25 +258,24 @@ class Extension {
 
         settings = null;
 
-        spotifyProxySignals.forEach((signal) => spotifyProxy.disconnect(signal));
-        spotifyProxySignals = null;
-
-        spotifyProxy = null;
+        this.spotify.destroy();
 
         this.controlBar.destroy();
         hide = true;
     }
 
     _refresh() {
-        if (spotifyProxy.isSpotifyOpen()) {
+        if (this.spotify.isActive) {
             if (hide) {
                 // first time extension shows
+                log(`Showing spotify-controller: Spotify owner vanished`);
                 hide = false;
                 this.onExtensionLocationChanged(settings);
             }
 
-            this.controlBar.toggle[spotifyProxy.isPlaying() ? '_pauseIcon' : '_playIcon']();
+            this.controlBar.toggle[this.spotify.isPlaying ? '_pauseIcon' : '_playIcon']();
         } else {
+            log(`Hiding spotify-controller: Spotify owner disappeared`);
             hide = true;
 
             this.controlBar.toggle._playIcon();
