@@ -54,16 +54,6 @@ but you can manually install it (commands):
 
 If you copied the extension, you can delete the repo folder (`cd .. && rm -r gnome-shell-extension-spotify-controller`)
 
-## Prerequisites
-
-The only thing you 'need' is `dbus-send` but I think it comes with GNOME Shell/Linux. To check you have it, simply run the command
-```sh
-command -v dbus-send
-```
-You should see a path pointing to the executable file for `dbus-send` (for me it's `/usr/bin/dbus-send`).
-
-If there was no output, yeah... well... good luck with that.
-
 ## License
 
 This project is licensed under the GNU General Public License - see the [LICENSE](LICENSE) file for details
