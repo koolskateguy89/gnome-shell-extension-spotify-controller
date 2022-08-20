@@ -25,12 +25,3 @@ journalctl /usr/bin/gjs | grep 'spotify-controller@koolskateguy89'
 ```sh
 glib-compile-schemas schemas/
 ```
-
-
-# Me TODO
-
-## Dbus session
-
-```js
-log(`${Gio.DBus.session.constructor.name}`);
-```
