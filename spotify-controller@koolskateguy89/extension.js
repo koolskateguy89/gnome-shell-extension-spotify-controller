@@ -161,12 +161,6 @@ class Toggle extends St.Icon {
 
 const ControlBar = GObject.registerClass(
 class ControlBar extends PanelMenu.Button {
-    previous;
-    next;
-    toggle;
-    buttons;
-    bar;
-
     _init(spotify) {
         super._init();
 

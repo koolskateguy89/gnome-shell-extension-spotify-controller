@@ -33,11 +33,12 @@ const PlayerProxy = Gio.DBusProxy.makeProxyWrapper(playerInterface);
  * A non-player specific wrapper of a proxy for a media player.
  * @todo Write the documentation.
  */
-class MediaPlayer {
-    // this.onAppeared = onAppeared;
-    // this.onVanished = onVanished;
-    // this.onPropertiesChanged = onPropertiesChanged;
-
+var MediaPlayer = class MediaPlayer {
+    onAppeared;
+    onVanished;
+    onPropertiesChanged;
+    proxy;
+    proxySignals;
 
     /**
      * @param {playerConsumer=} onAppeared
