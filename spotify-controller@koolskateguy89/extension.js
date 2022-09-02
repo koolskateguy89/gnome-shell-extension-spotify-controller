@@ -8,7 +8,7 @@ const PanelMenu = imports.ui.panelMenu;
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 
-const { MediaPlayer } = Me.imports.mediaPlayer;
+const MediaPlayer = Me.imports.mediaPlayer;
 
 // helper variables
 let lastExtensionPlace, lastExtensionIndex;
@@ -214,9 +214,6 @@ class ControlBar extends PanelMenu.Button {
 });
 
 class Extension {
-    spotify;
-    controlBar;
-
     constructor() {
     }
 
@@ -224,7 +221,7 @@ class Extension {
         this._initSettings();
 
         const refresh = this._refresh.bind(this);
-        this.spotify = new MediaPlayer(refresh, refresh, refresh);
+        this.spotify = new MediaPlayer.MediaPlayer(refresh, refresh, refresh);
         this.spotify.setupProxy();
 
         this.controlBar = new ControlBar(this.spotify);

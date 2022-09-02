@@ -1,6 +1,6 @@
 const { Gio } = imports.gi;
 
-// thanks esenliyim - https://github.com/esenliyim/sp-tray/blob/master/panelButton.js
+// thanks esenliyim - https://github.com/esenliyim/sp-tray/blob/master/dbus.js
 // https://wiki.gnome.org/Gjs/Examples/DBusClient
 // https://www.andyholmes.ca/articles/dbus-in-gjs.html#high-level-proxies
 const path = '/org/mpris/MediaPlayer2';
@@ -31,15 +31,16 @@ const PlayerProxy = Gio.DBusProxy.makeProxyWrapper(playerInterface);
 
 /**
  * A non-player specific wrapper of a proxy for a media player.
+ *
+ * onAppeared
+ * onVanished
+ * onPropertiesChanged
+ * proxy
+ * proxySignals
+ *
  * @todo Write the documentation.
  */
 var MediaPlayer = class MediaPlayer {
-    onAppeared;
-    onVanished;
-    onPropertiesChanged;
-    proxy;
-    proxySignals;
-
     /**
      * @param {playerConsumer=} onAppeared
      * @param {playerConsumer=} onVanished
