@@ -4,16 +4,6 @@ const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 const settings = ExtensionUtils.getSettings();
 
-const Config = imports.misc.config;
-const [major] = Config.PACKAGE_VERSION.split('.');
-const shellVersion = Number.parseInt(major);
-
-if (shellVersion < 40) {
-    Gtk.Box.prototype.append = function(widget) {
-        this.add(widget);
-    }
-}
-
 String.prototype.toRgba = function() {
     const rgba = new Gdk.RGBA();
     rgba.parse(this.valueOf());
@@ -29,22 +19,9 @@ function init() {
 
 function buildPrefsWidget() {
     let box = new Gtk.Box({
-        ...{
-            orientation: Gtk.Orientation.VERTICAL,
-            spacing: 1,
-        },
-        ...(shellVersion >= 40 ?
-            {
-                margin_top: 20,
-                margin_bottom: 20,
-                margin_start: 20,
-                margin_end: 20,
-            }
-            :
-            {
-                border_width: 20,
-            }
-        ),
+        orientation: Gtk.Orientation.VERTICAL,
+        spacing: 1,
+        border_width: 20,
     });
 
     let title = new Gtk.Label({
@@ -52,28 +29,15 @@ function buildPrefsWidget() {
         halign: Gtk.Align.START,
         use_markup: true,
     });
-    box.append(title);
+    box.add(title);
 
     let prefsWidget = new Gtk.Grid({
-        ...{
-            column_spacing: 12,
-            row_spacing: 12,
-            column_homogeneous: true,
-        },
-        ...(shellVersion >= 40 ?
-            {
-                margin_top: 18,
-                margin_bottom: 18,
-                margin_start: 18,
-                margin_end: 18,
-            }
-            :
-            {
-                margin: 18,
-            }
-        ),
+        column_spacing: 12,
+        row_spacing: 12,
+        column_homogeneous: true,
+        margin: 18,
     });
-    box.append(prefsWidget);
+    box.add(prefsWidget);
 
     let index = 0;
 
@@ -184,30 +148,17 @@ function buildPrefsWidget() {
 
 
     let defaultButton = buildDefaultButton();
-    box.append(defaultButton);
+    box.add(defaultButton);
 
     return box;
 }
 
 function buildColorGrid() {
     let colorGrid = new Gtk.Grid({
-        ...{
-            column_spacing: 12,
-            row_spacing: 12,
-            column_homogeneous: true,
-        },
-        ...(shellVersion >= 40 ?
-            {
-                margin_top: 12,
-                margin_bottom: 12,
-                margin_start: 12,
-                margin_end: 12,
-            }
-            :
-            {
-                margin: 12,
-            }
-        )
+        column_spacing: 12,
+        row_spacing: 12,
+        column_homogeneous: true,
+        margin: 12,
     });
 
     /* prev-icon-color */
